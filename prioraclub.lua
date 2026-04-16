@@ -1,4 +1,16 @@
-﻿-- vector5d(x,y,z,w,h)
+-- preload custom avatar
+local _custom_avatar_tex = nil
+pcall(function()
+    local data = readfile("avatar.png")
+    client.color_log(150,150,150,"[avatar] readfile result: "..tostring(type(data)).." len="..(data and #data or 0).."\n")
+    if data and #data > 0 then
+        local ok, tex = pcall(images.load_png, data)
+        client.color_log(150,150,150,"[avatar] load_png ok="..tostring(ok).."\n")
+        if ok and tex then _custom_avatar_tex = tex end
+    end
+end)
+
+-- vector5d(x,y,z,w,h)
 
 local js = panorama.open()
 local vector = require("vector")
@@ -410,7 +422,7 @@ local db = {
         role = odyssey and ((USER == "evildealers") and "admin" or "user") or "source",
         version = {"Beta", "v1"},
     },
-    name = "PRIORACLUB",
+    name = "Priora.Club",
     src = {
         x = src[1],
         y = src[2]
@@ -4730,25 +4742,33 @@ render_melancholia_watermark = function(self, alpha)
     local mn = string.format("%02d", minute or 0)
     local sc = string.format("%02d", second or 0)
 
-    local username = tostring(db.server.user or "user"):lower()
-    local build = tostring(db.server.version[1] or "Alpha"):lower()
-    local title = "PrioraClub"
+    local username = tostring(db.server.user or "user")
+    local build    = tostring(db.server.version[1] or "Beta")
+    local title    = "PrioraClub"
 
-    local accent_hex = clr.rgb(ar, ag, ab, aa):hexa(true)
-    local base_hex = "\aCDCDCDFF"
-    local function accent_text(text)
-        return accent_hex .. text .. base_hex
-    end
+    local pad = 12
+    local gap = 8
+    local h   = 24
 
-    local text = title .. accent_text(".gs") .. " [" .. build .. "] | " .. accent_text(username) .. " | " .. accent_text(hr) .. ":" .. accent_text(mn) .. ":" .. accent_text(sc)
-    local tw, th = renderer.measure_text("", text .. "   ")
-    tw = tw or 0
-    th = th or 0
-    local w = tw + 10
-    local h = 25
+    -- pill 1 sizes
+    local lw1, lh1 = renderer.measure_text("b", title)
+    lw1 = lw1 or 0; lh1 = lh1 or 0
+    local w1 = lw1 + pad * 2
+
+    -- pill 2 parts: "</>" + build + " @ " + username
+    local p_code = "</> "
+    local p_sep  = " @ "
+    local p_user = username
+    local cw, ch = renderer.measure_text("b", p_code)
+    local bw, bh = renderer.measure_text("b", build)
+    local sw, _  = renderer.measure_text("b", p_sep)
+    local uw, uh = renderer.measure_text("b", p_user)
+    cw = cw or 0; bw = bw or 0; sw = sw or 0; uw = uw or 0; ch = ch or 0
+    local w2 = cw + bw + sw + uw + pad * 2
+
+    local total_w = w1 + gap + w2
 
     local pos = (self.setting and self.setting.position and self.setting.position.get and self.setting.position:get()) or "Custom"
-    local padding_x, padding_y = 40, 25
     local screen_w, screen_h = client.screen_size()
     screen_w = screen_w or db.src.x
     screen_h = screen_h or db.src.y
@@ -4756,8 +4776,8 @@ render_melancholia_watermark = function(self, alpha)
     if pos == "Custom" then
         if not self.melancholia_init then
             if self.x == 15 and self.y == 15 then
-                self.x = math.max(0, screen_w - padding_x - w)
-                self.y = math.max(0, padding_y)
+                self.x = math.max(0, screen_w - 40 - total_w)
+                self.y = math.max(0, 25)
             end
             self.melancholia_init = true
         end
@@ -4767,20 +4787,39 @@ render_melancholia_watermark = function(self, alpha)
 
     local x, y
     if pos ~= "Custom" then
-        x, y = resolve_watermark_position(self, w, h, self.x, self.y, false)
+        x, y = resolve_watermark_position(self, total_w, h, self.x, self.y, false)
     else
         x, y = self.x, self.y
     end
 
-    self:release(w, h)
+    self:release(total_w, h)
 
-    render.rect(x, y, w, h, {19, 19, 19, opacity}, 5)
-    mel_rectangle_outline(x, y, w, h, 32, 32, 32, opacity, 2, 3)
-    mel_fade_rounded_rect_notif(x - 1, y, w + 2, h, 5, ar, ag, ab, opacity, 190, h * 2)
+    local alpha_f = opacity / 255
+    local ga = math.floor(40 * alpha_f)
 
-    if opacity > 95 then
-        renderer.text(x + (w - tw), y + (th / 2), 226, 226, 226, 255, "", 0, text)
-    end
+    -- pill 1
+    render.rect(x - 4, y - 4, w1 + 8, h + 8, {0, 0, 0, ga}, 6)
+    render.rect(x - 2, y - 2, w1 + 4, h + 4, {0, 0, 0, ga * 2}, 5)
+    render.rect(x, y, w1, h, {28, 28, 28, math.floor(245 * alpha_f)}, 4)
+    local ty1 = y + (h - lh1) / 2
+    renderer.text(x + pad, ty1, 220, 220, 220, opacity, "b", 0, title)
+
+    -- pill 2
+    local x2 = x + w1 + gap
+    render.rect(x2 - 4, y - 4, w2 + 8, h + 8, {0, 0, 0, ga}, 6)
+    render.rect(x2 - 2, y - 2, w2 + 4, h + 4, {0, 0, 0, ga * 2}, 5)
+    render.rect(x2, y, w2, h, {28, 28, 28, math.floor(245 * alpha_f)}, 4)
+
+    local ty2 = y + (h - ch) / 2
+    local cx = x2 + pad
+    -- "</>" accent
+    renderer.text(cx,            ty2, ar, ag, ab, opacity, "b", 0, p_code)
+    -- build white
+    renderer.text(cx + cw,       ty2, 220, 220, 220, opacity, "b", 0, build)
+    -- separator dim
+    renderer.text(cx + cw + bw,  ty2, 120, 120, 120, opacity, "b", 0, p_sep)
+    -- person icon + username accent
+    renderer.text(cx + cw + bw + sw, ty2, ar, ag, ab, opacity, "b", 0, p_user)
 end
 
 paint.watermark.text = function(self, a, base_alpha)
@@ -4897,7 +4936,7 @@ paint.watermark.text = function(self, a, base_alpha)
         local build = sanitize_watermark_text(db.server.version[1] or "Beta Acces") or "Beta Acces"
 
         local text1 = sanitize_watermark_text(db.name:upper() .. ".LUA") or "PRIORACLUB.LUA"
-        local text2 = "USER - " .. user .. "   [" .. build .. "]"
+        local text2 = "user - " .. user .. "   [" .. build .. "]"
         local avatar_size = 32
         local text1_w, text1_h = renderer.measure_text("", text1)
         local text2_w, text2_h = renderer.measure_text("", text2)
@@ -4911,7 +4950,7 @@ paint.watermark.text = function(self, a, base_alpha)
             local avatar = steam and images.get_steam_avatar(steam) or nil
             if avatar then
                 local texture = renderer.load_rgba(avatar.contents, avatar.width, avatar.height)
-                renderer.texture(texture, base_x, base_y, avatar_size, avatar_size, 255, 255, 255, 255 * alpha, "f")
+                renderer.texture(_custom_avatar_tex or texture, base_x, base_y, avatar_size, avatar_size, 255, 255, 255, 255 * alpha, "f")
             end
         end
 
