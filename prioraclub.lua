@@ -15,11 +15,11 @@ end)
 local js = panorama.open()
 local vector = require("vector")
 local pui = require("gamesense/pui")
-local clipboard = require("gamesense/clipboard")
+local clipboard = (function() local ok,m = pcall(require,"gamesense/clipboard") return ok and m or {get=function() return "" end, set=function() end} end)()
 local ent = require("gamesense/entity")
-local images = require('gamesense/images')
-local base64 = require('gamesense/base64')
-local surface = require('gamesense/surface')
+local images = (function() local ok,m = pcall(require,"gamesense/images") return ok and m or {load_png=function() return nil end, get_steam_avatar=function() return nil end} end)()
+local base64 = (function() local ok,m = pcall(require,"gamesense/base64") return ok and m or {encode=function(s) return s end, decode=function(s) return s end} end)()
+local surface = (function() local ok,m = pcall(require,"gamesense/surface") return ok and m or {blur=function() end} end)()
 local ffi = require("ffi")
 local odyssey = false 
 
@@ -588,6 +588,13 @@ local kate = db.name .. "::data"
 local data = database.read(kate)
 local config_notify = {}
 
+-- session stats (reset on script load)
+local session = {
+    kills  = 0,
+    deaths = 0,
+    start  = 0,  -- set on first frame
+}
+
 local DEFAULT_CFG_NAME = "evildealers"
 local DEFAULT_CFG_DATA = [[eyJhYSI6eyJidWlsZGVyIjpbeyJlbmFibGUiOmZhbHNlLCJtb2QiOiJPZmYiLCJ5YXdfbW9kZSI6MCwieWF3X2xlZnQiOjAsIm1vZF9kbSI6MCwiYm9keV9zbGlkZXIiOjAsImxhYmVsIjoiICIsImRlbGF5IjoxLCJyYW5kb20iOjAsImJvZHkiOiJPZmYiLCJ5YXdfcmlnaHQiOjAsIm9mZnNldCI6MH0seyJlbmFibGUiOnRydWUsIm1vZCI6IkNlbnRlciIsInlhd19tb2RlIjoxLCJ5YXdfbGVmdCI6LTM1LCJtb2RfZG0iOjUsImJvZHlfc2xpZGVyIjowLCJsYWJlbCI6IiAiLCJkZWxheSI6MiwicmFuZG9tIjo1LCJib2R5IjoiSml0dGVyIiwieWF3X3JpZ2h0Ijo0NSwib2Zmc2V0IjotOX0seyJlbmFibGUiOnRydWUsIm1vZCI6IkNlbnRlciIsInlhd19tb2RlIjowLCJ5YXdfbGVmdCI6NSwibW9kX2RtIjowLCJib2R5X3NsaWRlciI6MCwibGFiZWwiOiIgIiwiZGVsYXkiOjEsInJhbmRvbSI6MCwiYm9keSI6Ik9mZiIsInlhd19yaWdodCI6MjUsIm9mZnNldCI6MH0seyJlbmFibGUiOnRydWUsIm1vZCI6IkNlbnRlciIsInlhd19tb2RlIjoxLCJ5YXdfbGVmdCI6LTI4LCJtb2RfZG0iOjEwLCJib2R5X3NsaWRlciI6MCwibGFiZWwiOiIgIiwiZGVsYXkiOjEsInJhbmRvbSI6MjAsImJvZHkiOiJKaXR0ZXIiLCJ5YXdfcmlnaHQiOjMyLCJvZmZzZXQiOjB9LHsiZW5hYmxlIjp0cnVlLCJtb2QiOiJDZW50ZXIiLCJ5YXdfbW9kZSI6MSwieWF3X2xlZnQiOi0xMywibW9kX2RtIjoxMCwiYm9keV9zbGlkZXIiOjAsImxhYmVsIjoiICIsImRlbGF5IjoxLCJyYW5kb20iOjUsImJvZHkiOiJKaXR0ZXIiLCJ5YXdfcmlnaHQiOjEzLCJvZmZzZXQiOjB9LHsiZW5hYmxlIjp0cnVlLCJtb2QiOiJPZmZzZXQiLCJ5YXdfbW9kZSI6MSwieWF3X2xlZnQiOi0xOSwibW9kX2RtIjowLCJib2R5X3NsaWRlciI6MCwibGFiZWwiOiIgIiwiZGVsYXkiOjQsInJhbmRvbSI6NSwiYm9keSI6IkppdHRlciIsInlhd19yaWdodCI6NTAsIm9mZnNldCI6MH0seyJlbmFibGUiOnRydWUsIm1vZCI6IkNlbnRlciIsInlhd19tb2RlIjoxLCJ5YXdfbGVmdCI6LTI4LCJtb2RfZG0iOjAsImJvZHlfc2xpZGVyIjowLCJsYWJlbCI6IiAiLCJkZWxheSI6MywicmFuZG9tIjoxMywiYm9keSI6IkppdHRlciIsInlhd19yaWdodCI6MzAsIm9mZnNldCI6MH0seyJlbmFibGUiOnRydWUsIm1vZCI6IkNlbnRlciIsInlhd19tb2RlIjoxLCJ5YXdfbGVmdCI6LTIzLCJtb2RfZG0iOjcsImJvZHlfc2xpZGVyIjowLCJsYWJlbCI6IiAiLCJkZWxheSI6MiwicmFuZG9tIjoxMSwiYm9keSI6IkppdHRlciIsInlhd19yaWdodCI6MzcsIm9mZnNldCI6MH0seyJlbmFibGUiOnRydWUsIm1vZCI6IkNlbnRlciIsInlhd19tb2RlIjoxLCJ5YXdfbGVmdCI6LTI4LCJtb2RfZG0iOjksImJvZHlfc2xpZGVyIjowLCJsYWJlbCI6IiAiLCJkZWxheSI6MSwicmFuZG9tIjo0NSwiYm9keSI6IkppdHRlciIsInlhd19yaWdodCI6MzAsIm9mZnNldCI6MH1dLCJzZXR0aW5ncyI6eyJmcmVlc3RhbmRfYmluZCI6ZmFsc2UsImFudGlfYnJ1dGVfc3RhZ2VzIjo0LCJzZXR0aW5nc19jYXRlZ29yeSI6Ilx1MDAwYu6EoVxyIEdlbmVyYWwiLCJtYW51YWxfcmlnaHQiOmZhbHNlLCJkZWZlbnNpdmVfcGl0Y2giOiJEZWZhdWx0Iiwic2FmZV9oZWFkIjpbIktuaWZlIG9uIEFpciArIEMiXSwiYW50aV9icnV0ZV9yYW5nZSI6MzUsImFudGlfYnJ1dGUiOmZhbHNlLCJtYW51YWxfcmVzZXQiOmZhbHNlLCJ0YXJnZXRzIjoiQXQgdGFyZ2V0cyIsImF2b2lkX3NsaWRlciI6MTc1LCJkZWZlbnNpdmVfYWEiOmZhbHNlLCJsYWJlbCI6IiAiLCJmZWF0dXJlcyI6WyJBdm9pZCBCYWNrc3RhYiJdLCJsYWJlbDEiOiIgIiwiYW50aV9icnV0ZV90cmlnZ2VycyI6e30sImRpcmVjdGlvbiI6WyJGcmVlc3RhbmQiLCJNYW51YWxzIl0sIm1vZGUiOiJCdWlsZGVyIiwibWFudWFsX2ZvcndhcmQiOmZhbHNlLCJkZWZlbnNpdmVfeWF3IjoiRGVmYXVsdCIsImNvbmRpdGlvbiI6IkZyZWVzdGFuZCIsImxhYmVsMiI6IiAiLCJkZWZlbnNpdmVfbW9kZSI6e30sImFudGlfYnJ1dGVfY29vbGRvd24iOjYsImRlZmVuc2l2ZV9zdGF0ZSI6e30sIm92ZXJyaWRlX3NwaW5uZXIiOlsiTm8gZW5lbWllcyJdLCJtYW51YWxfbGVmdCI6ZmFsc2V9fSwibWVudSI6W3siY29sb3JzIjp7ImZpcnN0IjoiIzNCRDBCNkZGIn0sImNvbmZpZyI6eyJsaXN0IjoxLCJuYW1lIjoiY2VsZXN0aWFsZmFuZzIifX0seyJoaXRjaGFuY2Vfb3ZlcnJpZGUiOjAsInByZWRpY3RfaW5kIjpmYWxzZSwib3Zlcm5pZ2h0X29mZl9kdF9ocyI6dHJ1ZSwiaGl0Y2hhbmNlX2RlZmF1bHQiOjAsImhpdGNoYW5jZV9pbl9haXIiOmZhbHNlLCJvdmVybmlnaHRfYm9keV95YXdfZml4Ijp0cnVlLCJvdmVybmlnaHRfdW5zYWZlX3JlY2hhcmdlIjp0cnVlLCJoaXRjaGFuY2Vfb3ZlcnJpZGVfa2V5IjpbMSwwLCJ+Il0sIm92ZXJuaWdodF9maXhfYXV0b3N0b3AiOnRydWUsInByZWRpY3QiOlsxLDAsIn4iXSwicHJlZGljdF9jb2xvciI6IiNGRkZGRkZGRiIsImhpZGVzaG90c19maXgiOnRydWUsImhpdGNoYW5jZV9pbmRpY2F0b3IiOmZhbHNlLCJvdmVybmlnaHRfbGNfZml4Ijp0cnVlLCJoaXRjaGFuY2VfaW5fYWlyX3ZhbCI6NTB9LHsidGFiIjoiTWlzYyIsInZpc3VhbHMiOnsibWFuYWdtZW50Ijp7InR5cGUiOlsiVmVsb2NpdHkiLCJ+Il0sInZhbCI6dHJ1ZX0sImNyb3NzaGFpciI6eyJ0eXBlIjoibW9kZXJuIiwiY29sb3JzIjp7InNlY29uZCI6IiM4RkMyMTVGRiIsImZpcnN0IjoiIzNCRDBCNkZGIn0sInZhbCI6ZmFsc2UsIm1vZGVybiI6eyJtYWluIjoiI0I5QkVGRkZGIiwic3RhdGUiOiIjQjlCRUZGRkYiLCJrZXkiOiIjQjlCRUZGRkYiLCJ0cmFpbCI6IiNCOUJFRkZGRiJ9fSwidGhpcmRwZXJzb24iOnsiZGlzdGFuY2UiOjUwLCJjb2xsaXNpb24iOmZhbHNlLCJ2YWwiOnRydWV9LCJhaW1ib3RfbG9ncyI6eyJoaXQiOiIjRDNBMEJCRkYiLCJub3RpZnkiOnRydWUsIm1pc3MiOiIjRTE1MDUwRkYiLCJzdHlsZSI6Ik1pbmltYWwiLCJ2YWwiOnRydWV9LCJzcGVjbGlzdCI6ZmFsc2UsIndhdGVybWFyayI6eyJwb3NpdGlvbiI6IkJvdHRvbSIsInZhbCI6dHJ1ZSwidHlwZSI6IlRleHQiLCJjb2xvcnMiOnsic2Vjb25kIjoiIzhGQzIxNUZGIiwiZmlyc3QiOiIjM0JEMEI2RkYifSwic3R5bGUiOiJEZWZhdWx0In0sInpvb20iOnsiZm92IjoyMCwidmFsIjpmYWxzZSwic3BlZWQiOjEwfSwidmlld21vZGVsIjp7ImZvdiI6NjgsInBpdGNoIjowLCJ2YWwiOmZhbHNlLCJ5IjowLCJpbl9zY29wZSI6ZmFsc2UsInJvbGwiOjAsIm9wdGlvbnMiOlsifiJdLCJ5YXciOjAsInoiOjAsIngiOjB9LCJhc3BlY3RfcmF0aW8iOnsidmFsdWUiOjEzMCwidmFsIjp0cnVlfSwiZGFtYWdlIjp7InR5cGUiOiJTbWFsbCIsIm1vZGUiOiJBbHdheXMiLCJ2YWwiOnRydWV9LCJwb2ludGVycyI6eyJ0eXBlIjoiRGVmYXVsdCIsInZhbCI6ZmFsc2V9LCJiaW5kbGlzdCI6ZmFsc2V9LCJtaXNjIjp7ImZhc3RfZmFsbF9oIjpbMSwwLCJ+Il0sImNsYW50YWciOnRydWUsInRyYXNodGFsayI6eyJtb2RlIjpbIk9uIGtpbGwiLCJ+Il0sInZhbCI6ZmFsc2V9LCJkdWNrX3NwZWVkIjp0cnVlLCJidXlib3QiOnsibmFkZXMiOlsiU21va2UiLCJ+Il0sInNlY29uZCI6IkRlYWdsZVwvUjgiLCJvdGhlciI6WyJLZXZsYXIiLCJ+Il0sInByaW0iOiJTU0ctMDgiLCJ2YWwiOmZhbHNlfSwiYnJlYWtlciI6eyJzdWJtb2RlIjpbIn4iXSwibW9kZSI6Ik9mZiIsInZhbCI6ZmFsc2V9LCJjaGFyZ2VfZml4Ijp0cnVlLCJmYXN0X2ZhbGwiOmZhbHNlLCJmYXN0X2xhZGRlciI6dHJ1ZSwiZmlsdGVyIjp0cnVlfX0seyJmcmVlc3RhbmRfYmluZCI6WzEsMTgsIn4iXSwiYW50aV9icnV0ZV9zdGFnZXMiOjQsInNldHRpbmdzX2NhdGVnb3J5IjoiXHUwMDBi7oShXHIgR2VuZXJhbCIsIm1hbnVhbF9yaWdodCI6WzEsMCwifiJdLCJkZWZlbnNpdmVfcGl0Y2giOiJEZWZhdWx0Iiwic2FmZV9oZWFkIjpbIktuaWZlIG9uIEFpciArIEMiLCJ+Il0sImFudGlfYnJ1dGVfcmFuZ2UiOjM1LCJhbnRpX2JydXRlIjpmYWxzZSwibWFudWFsX3Jlc2V0IjpbMSwwLCJ+Il0sImF2b2lkX3NsaWRlciI6MTc1LCJidWlsZGVyIjpbeyJlbmFibGUiOmZhbHNlLCJyYW5kb20iOjAsImJvZHlfc2xpZGVyIjowLCJib2R5IjoiT2ZmIiwibW9kIjoiT2ZmIiwib2Zmc2V0IjowLCJkZWxheSI6MSwibW9kX2RtIjowLCJ5YXdfbGVmdCI6MCwieWF3X3JpZ2h0IjowLCJ5YXdfbW9kZSI6MH0seyJlbmFibGUiOnRydWUsInJhbmRvbSI6NSwiYm9keV9zbGlkZXIiOjAsImJvZHkiOiJKaXR0ZXIiLCJtb2QiOiJDZW50ZXIiLCJvZmZzZXQiOi05LCJkZWxheSI6MiwibW9kX2RtIjo1LCJ5YXdfbGVmdCI6LTM1LCJ5YXdfcmlnaHQiOjQ1LCJ5YXdfbW9kZSI6MX0seyJlbmFibGUiOnRydWUsInJhbmRvbSI6MCwiYm9keV9zbGlkZXIiOjAsImJvZHkiOiJPZmYiLCJtb2QiOiJDZW50ZXIiLCJvZmZzZXQiOjAsImRlbGF5IjoxLCJtb2RfZG0iOjAsInlhd19sZWZ0Ijo1LCJ5YXdfcmlnaHQiOjI1LCJ5YXdfbW9kZSI6MH0seyJlbmFibGUiOnRydWUsInJhbmRvbSI6MjAsImJvZHlfc2xpZGVyIjowLCJib2R5IjoiSml0dGVyIiwibW9kIjoiQ2VudGVyIiwib2Zmc2V0IjowLCJkZWxheSI6MSwibW9kX2RtIjoxMCwieWF3X2xlZnQiOi0yOCwieWF3X3JpZ2h0IjozMiwieWF3X21vZGUiOjF9LHsiZW5hYmxlIjp0cnVlLCJyYW5kb20iOjUsImJvZHlfc2xpZGVyIjowLCJib2R5IjoiSml0dGVyIiwibW9kIjoiQ2VudGVyIiwib2Zmc2V0IjowLCJkZWxheSI6MSwibW9kX2RtIjoxMCwieWF3X2xlZnQiOi0xMywieWF3X3JpZ2h0IjoxMywieWF3X21vZGUiOjF9LHsiZW5hYmxlIjp0cnVlLCJyYW5kb20iOjUsImJvZHlfc2xpZGVyIjowLCJib2R5IjoiSml0dGVyIiwibW9kIjoiT2Zmc2V0Iiwib2Zmc2V0IjowLCJkZWxheSI6NCwibW9kX2RtIjowLCJ5YXdfbGVmdCI6LTE5LCJ5YXdfcmlnaHQiOjUwLCJ5YXdfbW9kZSI6MX0seyJlbmFibGUiOnRydWUsInJhbmRvbSI6MTMsImJvZHlfc2xpZGVyIjowLCJib2R5IjoiSml0dGVyIiwibW9kIjoiQ2VudGVyIiwib2Zmc2V0IjowLCJkZWxheSI6MywibW9kX2RtIjowLCJ5YXdfbGVmdCI6LTI4LCJ5YXdfcmlnaHQiOjMwLCJ5YXdfbW9kZSI6MX0seyJlbmFibGUiOnRydWUsInJhbmRvbSI6MTEsImJvZHlfc2xpZGVyIjowLCJib2R5IjoiSml0dGVyIiwibW9kIjoiQ2VudGVyIiwib2Zmc2V0IjowLCJkZWxheSI6MiwibW9kX2RtIjo3LCJ5YXdfbGVmdCI6LTIzLCJ5YXdfcmlnaHQiOjM3LCJ5YXdfbW9kZSI6MX0seyJlbmFibGUiOnRydWUsInJhbmRvbSI6NDUsImJvZHlfc2xpZGVyIjowLCJib2R5IjoiSml0dGVyIiwibW9kIjoiQ2VudGVyIiwib2Zmc2V0IjowLCJkZWxheSI6MSwibW9kX2RtIjo5LCJ5YXdfbGVmdCI6LTI4LCJ5YXdfcmlnaHQiOjMwLCJ5YXdfbW9kZSI6MX1dLCJmZWF0dXJlcyI6WyJBdm9pZCBCYWNrc3RhYiIsIn4iXSwiZGVmZW5zaXZlX3lhdyI6IkRlZmF1bHQiLCJhbnRpX2JydXRlX3RyaWdnZXJzIjpbIn4iXSwiZGlyZWN0aW9uIjpbIkZyZWVzdGFuZCIsIk1hbnVhbHMiLCJ+Il0sIm1vZGUiOiJCdWlsZGVyIiwibWFudWFsX2ZvcndhcmQiOlsxLDM4LCJ+Il0sIm1hbnVhbF9sZWZ0IjpbMSwwLCJ+Il0sImRlZmVuc2l2ZV9hYSI6ZmFsc2UsImRlZmVuc2l2ZV9zdGF0ZSI6WyJ+Il0sImNvbmRpdGlvbiI6IkZyZWVzdGFuZCIsImFudGlfYnJ1dGVfY29vbGRvd24iOjYsImRlZmVuc2l2ZV9tb2RlIjpbIn4iXSwib3ZlcnJpZGVfc3Bpbm5lciI6WyJObyBlbmVtaWVzIiwifiJdLCJ0YXJnZXRzIjoiQXQgdGFyZ2V0cyJ9XSwic2NoZW1hIjoyLCJwb3NpdGlvbnMiOnsidmVsb2NpdHkiOnsieSI6OTQsIngiOjkwMH0sImNyb3NzaGFpciI6eyJ5Ijo1NjksIngiOjkzNX0sInBvaW50ZXMiOnsieSI6NTI5LCJ4IjoxMDEwfSwiYWltYm90X2xvZ3MiOnsieSI6Nzk1LCJ4Ijo4NDB9LCJzcGVjbGlzdCI6eyJ5IjozMjAsIngiOjQyMH0sIndhdGVybWFyayI6eyJ5IjoxMDU4LCJ4Ijo5NjB9LCJiaW5kcyI6eyJ5IjozODEsIngiOjQxMH0sImRhbWFnZSI6eyJ5Ijo1MjQsIngiOjk3MH0sImRlZmVuc2l2ZSI6eyJ5Ijo0MDAsIngiOjkwMH19fQ==]]
 
@@ -812,6 +819,10 @@ local helper = {
 
         if attacker == game.me and victim ~= game.me then 
             data.statx.kill = data.statx.kill + 1
+            session.kills = session.kills + 1
+        end
+        if victim == game.me then
+            session.deaths = session.deaths + 1
         end
     end,
 
@@ -1308,7 +1319,8 @@ local ifc = {
         pui.macros.m = pui.macros.v.."\r"
 
         menu = { -- @flag153 @flag154
-            tab_label = group[2]:label(pui.macros.v .. db.name:up() .. "\r ~ " .. db.server.user .. " / " .. db.server.version[1]),
+            tab_label = group[2]:label(" "),
+            banner = group[2]:label("PrioraClub"),
             tab = group[2]:combobox("\nmenu-tab", tabs.menu),
             
             space = self:space(group[2]),
@@ -1322,6 +1334,16 @@ local ifc = {
                     load = group[1]:button("\f<v>\r  Load"),
                     export = group[1]:button(" Export in clipboard"),
                     delete = group[1]:button("\f<red>  Delete"),
+                    cloud_btn = group[1]:button("\f<v>\r ☁ Go to cloud presets"),
+                },
+                cloud = {
+                    back_btn = group[1]:button("\f<v>\r ← Back to local"),
+                    list     = group[1]:listbox("\nlist-cloud", {}),
+                    name     = group[1]:textbox("\nname-cloud"),
+                    upload   = group[1]:button("\f<v>\r ☁ Upload preset"),
+                    load     = group[1]:button("\f<v>\r  Load preset"),
+                    delete   = group[1]:button("\f<red>  Delete preset"),
+                    status   = group[1]:label("cloud: ready"),
                 },
                 colors = {
                     first = group[3]:color_picker("\nmenu-first-clr", 59, 208, 182)
@@ -1333,8 +1355,12 @@ local ifc = {
                     info = {},
 
                     stats = {
-                        build = group[2]:label("\f<v>\r Your active build: \f<v>" .. db.server.version[1]),
-                        script = group[2]:label("\f<gray>" .. db.name:up() .. " BETTER YOU SHINE ")
+                        build    = group[2]:label("\f<v>\r Your active build: \f<v>" .. db.server.version[1]),
+                        script   = group[2]:label("\f<gray>" .. db.name:up() .. " BETTER YOU SHINE "),
+                        sep1     = group[2]:label(" "),
+                        kd_row   = group[2]:label("\f<v>\r K  \f<gray>0   \f<v>D  \f<gray>0   \f<v>K/D  \f<gray>0.00"),
+                        sep2     = group[2]:label(" "),
+                        time_row = group[2]:label("\f<v>\r Time  \f<gray>00:00:00   \f<v>Loads  \f<gray>0   \f<v>Misses  \f<gray>0"),
                     }
                 }
             },
@@ -3536,17 +3562,7 @@ local function update_visual_color_visibility()
 end
 
 local function update_menu_tab_label()
-    local label = pui.macros.v .. db.name:up() .. "\r ~ " .. db.server.user .. " / " .. db.server.version[1]
-
-    if menu.tab_label.set then
-        menu.tab_label:set(label)
-    elseif menu.tab_label.set_text then
-        menu.tab_label:set_text(label)
-    elseif menu.tab_label.set_label then
-        menu.tab_label:set_label(label)
-    elseif menu.tab_label.label then
-        menu.tab_label:label(label)
-    end
+    -- tab_label is now empty, banner handles the display
 end
 
 local function update_menu_color_labels()
@@ -3947,7 +3963,14 @@ local function render_log_notifications(logs, style)
         local time_left = item.time + cfg.lifetime - globals.curtime()
         local target = time_left > 0 and 1 or 0
 
-        if target == 1 then item.opacity = 1 else item.opacity = animate.lerp(item.opacity or 0, 0, 0.08) end
+        -- smooth fade in fast / fade out slow
+        if not item.opacity then item.opacity = 0 end
+
+        if target == 1 then
+            item.opacity = animate.lerp(item.opacity, 1, 80)
+        else
+            item.opacity = animate.lerp(item.opacity, 0, 80)
+        end
         item.scale = 1
 
         if item.opacity > 0.01 then
@@ -4023,7 +4046,56 @@ local function complete_menu()
     end
 
     ifc.hide(false)
+    -- update session start time
+    if session.start == 0 then
+        session.start = globals.realtime()
+    end
+
+    -- update stats labels every 10 ticks
+    if globals.tickcount() % 10 == 0 then
+        local st = menu.home.other.stats
+        if st then
+            local kd = session.deaths > 0 and string.format("%.2f", session.kills / session.deaths) or string.format("%.2f", session.kills)
+            local playtime_sec = math.floor(globals.realtime() - (session.start > 0 and session.start or globals.realtime()))
+            local h = math.floor(playtime_sec / 3600)
+            local m = math.floor((playtime_sec % 3600) / 60)
+            local s = playtime_sec % 60
+            local pt = string.format("%02d:%02d:%02d", h, m, s)
+            local gray = "\f<gray>"
+            local acc  = "\f<v>"
+            if st.kd_row and st.kd_row.set then
+                st.kd_row:set(acc .. "\r K  " .. gray .. tostring(session.kills) .. "   " .. acc .. "\r D  " .. gray .. tostring(session.deaths) .. "   " .. acc .. "\r K/D  " .. gray .. kd)
+            end
+            if st.time_row and st.time_row.set then
+                st.time_row:set(acc .. "\r Time  " .. gray .. pt .. "   " .. acc .. "\r Loads  " .. gray .. tostring(data.statx.load or 0) .. "   " .. acc .. "\r Misses  " .. gray .. tostring(data.statx.selfmiss or 0))
+            end
+        end
+    end
+
     if globals.tickcount() % 5 == 0 then
+        -- animated gradient banner
+        if menu.banner then
+            local t = globals.realtime() * 0.8
+            local title = "PrioraClub"
+            local result = {}
+            local mr2, mg2, mb2 = unpack({menu.home.colors.first:get()})
+            for i = 1, #title do
+                local ch = title:sub(i, i)
+                local phase = math.abs(math.cos((i / #title + t) * math.pi))
+                local rr = math.floor(mr2 * phase + 220 * (1 - phase))
+                local gg = math.floor(mg2 * phase + 220 * (1 - phase))
+                local bb = math.floor(mb2 * phase + 220 * (1 - phase))
+                rr = math.max(0, math.min(255, rr))
+                gg = math.max(0, math.min(255, gg))
+                bb = math.max(0, math.min(255, bb))
+                result[#result + 1] = string.format("\a%02x%02x%02xFF%s", rr, gg, bb, ch)
+            end
+            local banner_text = table.concat(result)
+            local sub = "\f<gray>" .. db.server.user .. " / " .. db.server.version[1]
+            if menu.banner.set then
+                menu.banner:set(banner_text .. "  " .. sub)
+            end
+        end
         r, g, b, a = unpack({menu.other.visuals.crosshair.colors.first:get()})
         rs, gs, bs, as = unpack({menu.other.visuals.crosshair.colors.second:get()})
         wr, wg, wb, wa = unpack({menu.other.visuals.watermark.colors.first:get()})
@@ -5014,9 +5086,6 @@ local function render_hud()
     do
         local cs = menu.other.visuals.custom_scope
         if cs and cs:get() then
-            local scope_overlay_ref = ui.reference('VISUALS', 'Effects', 'Remove scope overlay')
-            if scope_overlay_ref then ui.set(scope_overlay_ref, false) end
-
             local width, height = client.screen_size()
             local me = entity.get_local_player()
             local wpn = me and entity.get_player_weapon(me) or nil
@@ -5611,6 +5680,234 @@ menu.home.config.delete:set_callback(function()
 end)
 
 config.update:run()
+
+-- ============================================================
+-- CLOUD PRESETS
+-- ============================================================
+local CLOUD_BIN_ID  = "69e1cb1daaba8821970ac7ef"
+local CLOUD_API_KEY = "$2a$10$DVNjLLF8t68rGq/vMfGCTeZSdrh8YR0wjojQN25xtEe7iBtNQbTK2"
+local CLOUD_URL     = "https://api.jsonbin.io/v3/b/" .. CLOUD_BIN_ID
+
+local cloud_view = false  -- false = local, true = cloud
+local cloud_data = {}     -- cached presets from server
+
+local function cloud_set_status(text, r, g, b)
+    local lbl = menu.home.cloud.status
+    if lbl and lbl.set then
+        lbl:set("cloud: " .. text)
+    elseif lbl and lbl.set_text then
+        lbl:set_text("cloud: " .. text)
+    end
+    client.color_log(r or 150, g or 150, b or 170, "[cloud] " .. text .. "\n")
+end
+
+local function cloud_update_list()
+    local names = {}
+    for k, _ in pairs(cloud_data) do
+        table.insert(names, k)
+    end
+    table.sort(names)
+    if #names == 0 then names = {"-"} end
+    menu.home.cloud.list:update(names)
+end
+
+local function cloud_fetch(cb)
+    cloud_set_status("fetching...", 150, 150, 170)
+    http.get(CLOUD_URL .. "/latest", function(success, body)
+        if not success then
+            cloud_set_status("fetch failed", 220, 60, 60)
+            if cb then cb(false) end
+            return
+        end
+        local data = type(body) == "table" and (body.body or "") or tostring(body)
+        local ok, parsed = pcall(function()
+            -- extract "record" field
+            local rec = data:match('"record"%s*:%s*(%b{})')
+            if not rec then return {} end
+            local presets = rec:match('"presets"%s*:%s*(%b{})')
+            if not presets then return {} end
+            local result = {}
+            for name, val in presets:gmatch('"([^"]+)"%s*:%s*"([^"]*)"') do
+                result[name] = val
+            end
+            return result
+        end)
+        if ok and type(parsed) == "table" then
+            cloud_data = parsed
+            cloud_update_list()
+            cloud_set_status("loaded " .. tostring(#(function() local t={} for k in pairs(parsed) do t[#t+1]=k end return t end)()) .. " presets", 59, 208, 182)
+            if cb then cb(true) end
+        else
+            cloud_set_status("parse error", 220, 60, 60)
+            if cb then cb(false) end
+        end
+    end)
+end
+
+local function cloud_build_json()
+    local entries = {}
+    for k, v in pairs(cloud_data) do
+        local escaped = v:gsub('\\', '\\\\'):gsub('"', '\\"')
+        table.insert(entries, '"' .. k .. '":"' .. escaped .. '"')
+    end
+    return '{"presets":{' .. table.concat(entries, ",") .. "}}"
+end
+
+local function cloud_push(cb)
+    local json_body = cloud_build_json()
+    local req = {
+        url     = CLOUD_URL,
+        method  = "PUT",
+        headers = {
+            ["Content-Type"]  = "application/json",
+            ["X-Master-Key"]  = CLOUD_API_KEY,
+            ["X-Bin-Versioning"] = "false"
+        },
+        body = json_body
+    }
+    if http.request then
+        http.request(req, function(success, body)
+            if success then
+                cloud_set_status("synced!", 59, 208, 182)
+            else
+                cloud_set_status("sync failed", 220, 60, 60)
+            end
+            if cb then cb(success) end
+        end)
+    elseif http.post then
+        http.post(CLOUD_URL, json_body, {
+            ["Content-Type"] = "application/json",
+            ["X-Master-Key"] = CLOUD_API_KEY,
+            ["X-Bin-Versioning"] = "false"
+        }, function(success, body)
+            if success then
+                cloud_set_status("synced!", 59, 208, 182)
+            else
+                cloud_set_status("sync failed (no PUT)", 220, 60, 60)
+            end
+            if cb then cb(success) end
+        end)
+    else
+        cloud_set_status("saved locally only", 150, 150, 170)
+        if cb then cb(false) end
+    end
+end
+
+local function cloud_show(show)
+    cloud_view = show
+    local local_els = {
+        menu.home.config.import, menu.home.config.list,
+        menu.home.config.name,   menu.home.config.save,
+        menu.home.config.load,   menu.home.config.export,
+        menu.home.config.delete, menu.home.config.cloud_btn
+    }
+    local cloud_els = {
+        menu.home.cloud.back_btn, menu.home.cloud.list,
+        menu.home.cloud.name,     menu.home.cloud.upload,
+        menu.home.cloud.load,     menu.home.cloud.delete,
+        menu.home.cloud.status
+    }
+    for _, el in ipairs(local_els) do
+        pcall(function()
+            if el and el.set_visible then el:set_visible(not show) end
+        end)
+    end
+    for _, el in ipairs(cloud_els) do
+        pcall(function()
+            if el and el.set_visible then el:set_visible(show) end
+        end)
+    end
+    if show then
+        cloud_fetch(nil)
+    end
+end
+
+-- init: hide cloud elements immediately
+cloud_show(false)
+
+-- Go to cloud presets button
+menu.home.config.cloud_btn:set_callback(function()
+    cloud_show(true)
+end)
+
+-- Back button
+menu.home.cloud.back_btn:set_callback(function()
+    cloud_show(false)
+end)
+
+-- Load preset from cloud
+menu.home.cloud.load:set_callback(function()
+    local name = menu.home.cloud.name() or ""
+    if name == "" or name == "-" then
+        cloud_set_status("select a preset", 220, 60, 60)
+        return
+    end
+    local preset_data = cloud_data[name]
+    if not preset_data then
+        cloud_set_status("preset not found", 220, 60, 60)
+        return
+    end
+    local ok = config:import(preset_data, false)
+    if ok then
+        cloud_set_status("loaded: " .. name, 59, 208, 182)
+        table.insert(config_notify, {text = "Cloud preset loaded: " .. name, time = globals.realtime()})
+    else
+        cloud_set_status("load failed", 220, 60, 60)
+    end
+end)
+
+-- Upload preset to cloud
+menu.home.cloud.upload:set_callback(function()
+    local name = menu.home.cloud.name() or ""
+    if name == "" then
+        cloud_set_status("enter preset name", 220, 60, 60)
+        return
+    end
+    local exported = config:export()
+    if exported == "" then
+        cloud_set_status("export failed", 220, 60, 60)
+        return
+    end
+    cloud_data[name] = exported
+    cloud_update_list()
+    cloud_set_status("uploading...", 150, 150, 170)
+    cloud_push(function(ok)
+        if ok then
+            table.insert(config_notify, {text = "Cloud preset uploaded: " .. name, time = globals.realtime()})
+        end
+    end)
+end)
+
+-- Delete preset from cloud
+menu.home.cloud.delete:set_callback(function()
+    local name = menu.home.cloud.name() or ""
+    if name == "" or name == "-" then
+        cloud_set_status("select a preset", 220, 60, 60)
+        return
+    end
+    cloud_data[name] = nil
+    cloud_update_list()
+    cloud_set_status("deleted: " .. name, 59, 208, 182)
+end)
+
+-- sync list selection to name textbox
+menu.home.cloud.list:set_callback(function()
+    local info = menu.home.cloud.list()
+    local names = {}
+    for k in pairs(cloud_data) do table.insert(names, k) end
+    table.sort(names)
+    local selected = names[info + 1]
+    if selected and selected ~= "-" then
+        if menu.home.cloud.name.set then
+            menu.home.cloud.name:set(selected)
+        elseif menu.home.cloud.name.set_text then
+            menu.home.cloud.name:set_text(selected)
+        end
+    end
+end)
+-- ============================================================
+
+
 
 callback.paint:set(function()
     helper.render()
