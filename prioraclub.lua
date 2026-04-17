@@ -1,4 +1,4 @@
--- preload custom avatar
+﻿preload custom avatar
 local _custom_avatar_tex = nil
 pcall(function()
     local data = readfile("avatar.png")
@@ -414,7 +414,7 @@ local function inition()
     end
 end 
 
-local USER = odyssey and _USER_NAME or js.MyPersonaAPI.GetName()
+local USER = (_G.PRIORA_LOGIN and _G.PRIORA_LOGIN ~= "") and _G.PRIORA_LOGIN or (odyssey and _USER_NAME or js.MyPersonaAPI.GetName())
 local src = {client.screen_size()}
 local db = {
     server = {
@@ -1356,11 +1356,9 @@ local ifc = {
 
                     stats = {
                         build    = group[2]:label("\f<v>\r Your active build: \f<v>" .. db.server.version[1]),
-                        script   = group[2]:label("\f<gray>" .. db.name:up() .. " BETTER YOU SHINE "),
-                        sep1     = group[2]:label(" "),
-                        kd_row   = group[2]:label("\f<v>\r K  \f<gray>0   \f<v>D  \f<gray>0   \f<v>K/D  \f<gray>0.00"),
-                        sep2     = group[2]:label(" "),
-                        time_row = group[2]:label("\f<v>\r Time  \f<gray>00:00:00   \f<v>Loads  \f<gray>0   \f<v>Misses  \f<gray>0"),
+                        row1     = group[2]:label("\f<v>\r Kills \f<gray>0   \f<v>Deaths \f<gray>0"),
+                        row2     = group[2]:label("\f<v>\r K/D \f<gray>0.00   \f<v>Time \f<gray>00:00:00"),
+                        row3     = group[2]:label("\f<v>\r Loads \f<gray>0   \f<v>Misses \f<gray>0"),
                     }
                 }
             },
@@ -3389,9 +3387,9 @@ extra.clantag = {
 extra.trashtalk = {
     phrases = {
         ["kill"] = {
-            "𝕋𝕆 ℂ𝔸𝕃𝕃 𝕋ℍ𝔼𝕄 ℙ𝕆𝕆ℝ! 𝕀𝔽 𝕐𝕆𝕌 𝔾𝕆𝕋 𝕋ℍ𝕀𝕊 ℂ𝕆𝕄𝕄𝔼ℕ𝕋... 𝕎𝔼𝕃𝕃...",
-            "𝔱𝔥𝔢 𝔰𝔱𝔲𝔣𝔣 𝔶𝔬𝔲 𝔥𝔢𝔞𝔯𝔡 𝔞𝔟𝔬𝔲𝔱 𝔪𝔢 𝔦𝔰 𝔞 𝔩𝔦𝔢 ℑ 𝔞𝔪 𝔪𝔬𝔯𝔢 𝔴𝔬𝔯𝔰𝔢 𝔱𝔥𝔞𝔫 𝔶𝔬𝔲 𝔱𝔥𝔦𝔫𝔨...",
-            "THE demon inside of me is 𝙛𝙧𝙚𝙚𝙨𝙩𝙖𝙣𝙙𝙞𝙣𝙜",
+            "ангельские хорни -> https://discord.gg/2pS2CNBb",
+            "трибуны в колизее",
+            "",
             "𝖜𝖎𝖘𝖊 𝖎𝖘 𝖓𝖔𝖙 𝖆𝖑𝖜𝖆𝖞𝖘 𝖜𝖎𝖘𝖊",
             "god wish i had PRIORACLUB $$$",
             "꧁༺rJloTau mOu Pir()zh()]{ (c) SoSiS]{oY:XD ",
@@ -3603,6 +3601,15 @@ end, true)
 
 menu.home.colors.first:set_callback(function()
     update_menu_color_labels()
+end, true)
+
+-- re-apply cloud visibility when switching tabs
+menu.tab:set_callback(function()
+    client.delay_call(0, function() pcall(cloud_show, cloud_view) end)
+end, true)
+
+menu.other.tab:set_callback(function()
+    client.delay_call(0, function() pcall(cloud_show, cloud_view) end)
 end, true)
 
 local viewmodel_options = {false, false, false}
@@ -3924,93 +3931,73 @@ local function aimbot_logs_aim_miss(c)
 end
 
 local function render_log_notifications(logs, style)
-    if not logs or not logs.notify_data or #logs.notify_data == 0 then
-        return
-    end
+    if not logs or not logs.notify_data then return end
     local screen_x, screen_y = client.screen_size()
-    if not screen_x or not screen_y then
-        return
-    end
-    local cfg = logs.notify_cfg
-    local center_x = screen_x / 2
-    local base_y = screen_y * 0.75
-    local step = style == "Cards" and cfg.step or 18
+    if not screen_x or not screen_y then return end
 
-    local max_w = 0
+    local lifetime = logs.notify_cfg and logs.notify_cfg.lifetime or 3.5
+    local now      = globals.curtime()
+    local h        = 22
+    local gap      = 6
+    local base_y   = screen_y * 0.82
+
+    -- animate
     for i = 1, #logs.notify_data do
         local item = logs.notify_data[i]
-        if item.width == 0 then
-            local clean = item.text:gsub("\a%x%x%x%x%x%x%x%x", "")
-            item.width, item.height = renderer.measure_text("", clean .. " ")
-        end
-        local pad = cfg.padding
-        local content_w = (style == "Cards")
-            and (item.width + pad.left + cfg.icon_size + pad.text + pad.right)
-            or (item.width + 14)
-        if content_w > max_w then
-            max_w = content_w
-        end
-    end
-    local total_h = math.max(18, (#logs.notify_data) * step)
-    if logs.anchor then
-        logs.anchor:release(max_w, total_h)
-        center_x = logs.anchor.x + max_w / 2
-        base_y = logs.anchor.y
+        if not item.slide   then item.slide   = h + gap end
+        if not item.opacity then item.opacity = 0       end
+        local dying = (now - item.time) > (lifetime - 0.5)
+        item.slide   = animate.lerp(item.slide,   0,   16)
+        item.opacity = animate.lerp(item.opacity, dying and 0 or 1, dying and 5 or 20)
     end
 
-    for i = 1, #logs.notify_data do
+    -- draw bottom up
+    local offset_y = 0
+    for i = #logs.notify_data, 1, -1 do
         local item = logs.notify_data[i]
-        local time_left = item.time + cfg.lifetime - globals.curtime()
-        local target = time_left > 0 and 1 or 0
+        if (item.opacity or 0) < 0.02 then goto skip end
 
-        -- smooth fade in fast / fade out slow
-        if not item.opacity then item.opacity = 0 end
+        local alpha = math.clamp(item.opacity, 0, 1)
+        local a     = math.floor(255 * alpha)
+        local ba    = math.floor(245 * alpha)
+        local ga    = math.floor(40  * alpha)
 
-        if target == 1 then
-            item.opacity = animate.lerp(item.opacity, 1, 80)
-        else
-            item.opacity = animate.lerp(item.opacity, 0, 80)
-        end
-        item.scale = 1
+        local name     = "prioraclub"
+        local nw, nh   = renderer.measure_text("b", name)
+        local full_text = item.text
+        local tw, th   = renderer.measure_text("b", full_text)
+        nw = nw or 0; tw = tw or 0; nh = nh or 12; th = th or 12
 
-        if item.opacity > 0.01 then
-            local opacity = math.clamp(item.opacity, 0, 1)
-            local text_alpha = math.max(0, math.floor(255 * opacity))
-            local name = "prioraclub"
-            local nw, nh = renderer.measure_text("b", name)
-            local full_text = item.text
-            local tw2, th2 = renderer.measure_text("b", full_text)
-            local pad = 12
-            local gap = 8
-            local bg_w = nw + tw2 + pad * 2 + gap
-            local bg_h = 22
-            local bg_x = screen_x / 2 - bg_w / 2
-            local bg_y = screen_y * 0.82 - (i - 1) * (bg_h + 6)
-            local bg_a = math.max(0, math.floor(245 * opacity))
+        local pad = 12
+        local gap2 = 8
+        local bg_w = nw + tw + pad * 2 + gap2
+        local bg_x = screen_x / 2 - bg_w / 2
+        local bg_y = base_y - offset_y - (item.slide or 0)
 
-            -- black glow (shadow layers around box)
-            local glow_a = math.floor(40 * opacity)
-            render.rect(bg_x - 4, bg_y - 4, bg_w + 8, bg_h + 8, {0, 0, 0, glow_a}, 6)
-            render.rect(bg_x - 2, bg_y - 2, bg_w + 4, bg_h + 4, {0, 0, 0, glow_a * 2}, 5)
+        -- shadow
+        render.rect(bg_x-4, bg_y-4, bg_w+8, h+8, {0,0,0, ga},   6)
+        render.rect(bg_x-2, bg_y-2, bg_w+4, h+4, {0,0,0, ga*2}, 5)
+        -- card bg
+        render.rect(bg_x, bg_y, bg_w, h, {28,28,28, ba}, 4)
 
-            -- main black rounded box
-            render.rect(bg_x, bg_y, bg_w, bg_h, {28, 28, 28, bg_a}, 4)
+        -- "prioraclub" in accent/hit color
+        local ur, ug, ub = 150, 210, 30
+        if item.type == "failed" then ur, ug, ub = 220, 60, 60 end
+        local ty = bg_y + (h - nh) / 2
+        renderer.text(bg_x + pad,            ty, ur,  ug,  ub,  a, "b", 0, name)
+        renderer.text(bg_x + pad + nw + gap2, ty, 235, 235, 235, a, "b", 0, full_text)
 
-            local ur, ug, ub = 150, 210, 30
-            if item.type == "failed" then ur, ug, ub = 220, 60, 60 end
-            local ty = bg_y + (bg_h - nh) / 2
-            renderer.text(bg_x + pad,            ty, ur,  ug,  ub,  text_alpha, "b", 0, name)
-            renderer.text(bg_x + pad + nw + gap, ty, 235, 235, 235, text_alpha, "b", 0, full_text)
-        end
+        offset_y = offset_y + h + gap
+        ::skip::
     end
 
-    local idx = 1
-    while idx <= #logs.notify_data do
-        local item = logs.notify_data[idx]
-        if globals.curtime() - item.time > (cfg.lifetime + 0.2) then
-            table.remove(logs.notify_data, idx)
+    -- cleanup
+    local i = 1
+    while i <= #logs.notify_data do
+        if now - logs.notify_data[i].time > (lifetime + 0.6) then
+            table.remove(logs.notify_data, i)
         else
-            idx = idx + 1
+            i = i + 1
         end
     end
 end
@@ -4063,11 +4050,14 @@ local function complete_menu()
             local pt = string.format("%02d:%02d:%02d", h, m, s)
             local gray = "\f<gray>"
             local acc  = "\f<v>"
-            if st.kd_row and st.kd_row.set then
-                st.kd_row:set(acc .. "\r K  " .. gray .. tostring(session.kills) .. "   " .. acc .. "\r D  " .. gray .. tostring(session.deaths) .. "   " .. acc .. "\r K/D  " .. gray .. kd)
+            if st.row1 and st.row1.set then
+                st.row1:set(acc .. "\r Kills " .. gray .. tostring(session.kills) .. "   " .. acc .. "\r Deaths " .. gray .. tostring(session.deaths))
             end
-            if st.time_row and st.time_row.set then
-                st.time_row:set(acc .. "\r Time  " .. gray .. pt .. "   " .. acc .. "\r Loads  " .. gray .. tostring(data.statx.load or 0) .. "   " .. acc .. "\r Misses  " .. gray .. tostring(data.statx.selfmiss or 0))
+            if st.row2 and st.row2.set then
+                st.row2:set(acc .. "\r K/D " .. gray .. kd .. "   " .. acc .. "\r Time " .. gray .. pt)
+            end
+            if st.row3 and st.row3.set then
+                st.row3:set(acc .. "\r Loads " .. gray .. tostring(data.statx.load or 0) .. "   " .. acc .. "\r Misses " .. gray .. tostring(data.statx.selfmiss or 0))
             end
         end
     end
@@ -4847,10 +4837,8 @@ render_melancholia_watermark = function(self, alpha)
 
     if pos == "Custom" then
         if not self.melancholia_init then
-            if self.x == 15 and self.y == 15 then
-                self.x = math.max(0, screen_w - 40 - total_w)
-                self.y = math.max(0, 25)
-            end
+            self.x = math.max(0, screen_w - 40 - total_w)
+            self.y = 8
             self.melancholia_init = true
         end
     else
@@ -5038,6 +5026,72 @@ paint.watermark.text = function(self, a, base_alpha)
     render.text(x, y, 255, 255, 255, 255 * alpha, font_flag, text)
 end 
 
+
+-- ============================================================
+-- DYNAMIC GAP CROSSHAIR
+-- ============================================================
+paint.gap_crosshair = {
+    gap     = 4,
+    length  = 6,
+    thick   = 1,
+    alpha   = 1,
+    _gap    = 4,
+}
+
+paint.gap_crosshair.update = function()
+    return game.alive and menu.other.visuals.crosshair.val:get()
+end
+
+paint.gap_crosshair.paint = function(self)
+    local sw, sh = client.screen_size()
+    if not sw or not sh then return end
+
+    local cx = math.floor(sw / 2)
+    local cy = math.floor(sh / 2)
+
+    -- calculate gap based on velocity + inaccuracy
+    local vel    = game.velocity or 0
+    local scoped = game.scope and game.scope.open or false
+    local ducked = game.me and (entity.get_prop(game.me, "m_flDuckAmount") or 0) > 0.5 or false
+
+    local base_gap = 4
+    local vel_gap  = vel * 0.04
+    local scope_gap = scoped and -2 or 0
+    local duck_gap  = ducked and -1 or 0
+
+    local target_gap = math.max(1, base_gap + vel_gap + scope_gap + duck_gap)
+
+    -- smooth lerp
+    self._gap = animate.lerp(self._gap or base_gap, target_gap, 12)
+    local g = math.floor(self._gap)
+    local l = self.length
+    local t = self.thick
+
+    -- get crosshair color from menu
+    local cr, cg, cb, ca = 255, 255, 255, 220
+    if menu.other.visuals.crosshair.colors and menu.other.visuals.crosshair.colors.first then
+        cr, cg, cb, ca = menu.other.visuals.crosshair.colors.first:get()
+    end
+    local a = math.floor(ca * self.alpha)
+
+    -- outline (black)
+    local ot = t + 1
+    renderer.rectangle(cx - g - l - 1, cy - ot,     l + 2, ot * 2, 0, 0, 0, a)  -- left
+    renderer.rectangle(cx + g - 1,     cy - ot,     l + 2, ot * 2, 0, 0, 0, a)  -- right
+    renderer.rectangle(cx - ot,        cy - g - l - 1, ot * 2, l + 2, 0, 0, 0, a)  -- top
+    renderer.rectangle(cx - ot,        cy + g - 1,  ot * 2, l + 2, 0, 0, 0, a)  -- bottom
+
+    -- lines
+    renderer.rectangle(cx - g - l, cy - t, l, t * 2, cr, cg, cb, a)  -- left
+    renderer.rectangle(cx + g,     cy - t, l, t * 2, cr, cg, cb, a)  -- right
+    renderer.rectangle(cx - t, cy - g - l, t * 2, l, cr, cg, cb, a)  -- top
+    renderer.rectangle(cx - t, cy + g,     t * 2, l, cr, cg, cb, a)  -- bottom
+
+    -- center dot
+    renderer.rectangle(cx - t, cy - t, t * 2, t * 2, cr, cg, cb, math.floor(a * 0.6))
+end
+-- ============================================================
+
 local function render_hud()
     local function draw_pill(x, y, w, h, r, g, b, a)
         local radius = math.floor(h / 2)
@@ -5085,34 +5139,24 @@ local function render_hud()
     -- Custom scope lines
     do
         local cs = menu.other.visuals.custom_scope
-        if cs and cs:get() then
+        local me = entity.get_local_player()
+        local is_alive = me ~= nil and entity.is_alive(me)
+        local is_scoped = is_alive and entity.get_prop(me, 'm_bIsScoped') == 1 or false
+        local spd = (cs and cs:get()) and math.max(3, menu.other.visuals.scope_speed:get()) or 3
+        local target = (cs and cs:get() and is_alive and is_scoped) and 1 or 0
+        scope_alpha = scope_alpha + (target - scope_alpha) * globals.frametime() * spd
+        scope_alpha = math.clamp(scope_alpha, 0, 1)
+
+        if scope_alpha > 0.01 and cs and cs:get() then
             local width, height = client.screen_size()
-            local me = entity.get_local_player()
-            local wpn = me and entity.get_player_weapon(me) or nil
-            local scoped = me and entity.get_prop(me, 'm_bIsScoped') == 1 or false
-            local scope_level = wpn and entity.get_prop(wpn, 'm_zoomLevel') or 0
-            local resume_zoom = me and entity.get_prop(me, 'm_bResumeZoom') == 1 or false
-            local is_alive = me and entity.is_alive(me) or false
-
-            local act = is_alive and wpn ~= nil and scope_level and scope_level > 0 and scoped and not resume_zoom
-
-            local spd = menu.other.visuals.scope_speed:get()
-            local FT = spd > 3 and globals.frametime() * spd or 1
-            scope_alpha = math.clamp(scope_alpha + (act and FT or -FT), 0, 1)
-
-            if scope_alpha > 0.01 then
-                local cr, cg, cb, ca = menu.other.visuals.scope_color:get()
-                local pos = menu.other.visuals.scope_position:get() * height / 1080
-                local off = menu.other.visuals.scope_offset:get() * height / 1080
-                local a = math.floor(ca * scope_alpha)
-
-                renderer.gradient(width/2 - pos,  height/2, pos - off, 1, cr, cg, cb, 0,  cr, cg, cb, a,   true)
-                renderer.gradient(width/2 + off,  height/2, pos - off, 1, cr, cg, cb, a,  cr, cg, cb, 0,   true)
-                renderer.gradient(width/2, height/2 - pos, 1, pos - off, cr, cg, cb, 0,  cr, cg, cb, a,   false)
-                renderer.gradient(width/2, height/2 + off, 1, pos - off, cr, cg, cb, a,  cr, cg, cb, 0,   false)
-            end
-        else
-            scope_alpha = 0
+            local cr, cg, cb, ca = menu.other.visuals.scope_color:get()
+            local pos = menu.other.visuals.scope_position:get() * height / 1080
+            local off = menu.other.visuals.scope_offset:get() * height / 1080
+            local a = math.floor(ca * scope_alpha)
+            renderer.gradient(width/2, height/2 - pos, 1, pos - off, cr, cg, cb, 0, cr, cg, cb, a, false)
+            renderer.gradient(width/2, height/2 + off, 1, pos - off, cr, cg, cb, a, cr, cg, cb, 0, false)
+            renderer.gradient(width/2 - pos, height/2, pos - off, 1, cr, cg, cb, 0, cr, cg, cb, a, true)
+            renderer.gradient(width/2 + off, height/2, pos - off, 1, cr, cg, cb, a, cr, cg, cb, 0, true)
         end
     end
 
@@ -5679,7 +5723,16 @@ menu.home.config.delete:set_callback(function()
     end
 end)
 
-config.update:run()
+-- delay init to ensure UI is fully loaded
+client.delay_call(0.1, function()
+    config.update:run()
+    -- restore positions after load
+    if data and data.positions then
+        draggable:import(data.positions)
+    end
+    -- hide cloud again after config load
+    pcall(cloud_show, false)
+end)
 
 -- ============================================================
 -- CLOUD PRESETS
@@ -5795,35 +5848,28 @@ end
 
 local function cloud_show(show)
     cloud_view = show
-    local local_els = {
-        menu.home.config.import, menu.home.config.list,
-        menu.home.config.name,   menu.home.config.save,
-        menu.home.config.load,   menu.home.config.export,
-        menu.home.config.delete, menu.home.config.cloud_btn
-    }
-    local cloud_els = {
-        menu.home.cloud.back_btn, menu.home.cloud.list,
-        menu.home.cloud.name,     menu.home.cloud.upload,
-        menu.home.cloud.load,     menu.home.cloud.delete,
-        menu.home.cloud.status
-    }
-    for _, el in ipairs(local_els) do
-        pcall(function()
-            if el and el.set_visible then el:set_visible(not show) end
-        end)
-    end
-    for _, el in ipairs(cloud_els) do
-        pcall(function()
-            if el and el.set_visible then el:set_visible(show) end
-        end)
-    end
-    if show then
-        cloud_fetch(nil)
-    end
+    -- local config elements
+    pcall(function() menu.home.config.import:set_visible(not show) end)
+    pcall(function() menu.home.config.list:set_visible(not show) end)
+    pcall(function() menu.home.config.name:set_visible(not show) end)
+    pcall(function() menu.home.config.save:set_visible(not show) end)
+    pcall(function() menu.home.config.load:set_visible(not show) end)
+    pcall(function() menu.home.config.export:set_visible(not show) end)
+    pcall(function() menu.home.config.delete:set_visible(not show) end)
+    pcall(function() menu.home.config.cloud_btn:set_visible(not show) end)
+    -- cloud elements
+    pcall(function() menu.home.cloud.back_btn:set_visible(show) end)
+    pcall(function() menu.home.cloud.list:set_visible(show) end)
+    pcall(function() menu.home.cloud.name:set_visible(show) end)
+    pcall(function() menu.home.cloud.upload:set_visible(show) end)
+    pcall(function() menu.home.cloud.load:set_visible(show) end)
+    pcall(function() menu.home.cloud.delete:set_visible(show) end)
+    pcall(function() menu.home.cloud.status:set_visible(show) end)
+    if show then cloud_fetch(nil) end
 end
 
--- init: hide cloud elements immediately
-cloud_show(false)
+-- hide cloud on init
+client.delay_call(0, function() pcall(cloud_show, false) end)
 
 -- Go to cloud presets button
 menu.home.config.cloud_btn:set_callback(function()
@@ -5949,6 +5995,13 @@ client.delay_call(0, function()
 end)
 
 _G.OVERNIGHT_UNLOAD = function()
+    -- save draggable positions before unload
+    pcall(function()
+        if data then
+            data.positions = draggable:export()
+            database.write(kate, data)
+        end
+    end)
     _G.OVERNIGHT_ENABLED = false
     restore_mouse_binds()
     if extra and extra.ragebot_overnight and extra.ragebot_overnight.on_shutdown then
@@ -6018,7 +6071,7 @@ end
 
 -- Trash Talk System Integration
 local phrases = {
-    "1",
+    "ангельские хорни -> https://discord.gg/2pS2CNBb",
     "Ну привет пидар",
     "эммм ну ты бот",
     "пв)",
