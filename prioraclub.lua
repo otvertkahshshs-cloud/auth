@@ -1,4 +1,4 @@
-﻿preload custom avatar
+-- preload custom avatar
 local _custom_avatar_tex = nil
 pcall(function()
     local data = readfile("avatar.png")
@@ -3387,9 +3387,9 @@ extra.clantag = {
 extra.trashtalk = {
     phrases = {
         ["kill"] = {
-            "ангельские хорни -> https://discord.gg/2pS2CNBb",
-            "трибуны в колизее",
-            "",
+            "𝕋𝕆 ℂ𝔸𝕃𝕃 𝕋ℍ𝔼𝕄 ℙ𝕆𝕆ℝ! 𝕀𝔽 𝕐𝕆𝕌 𝔾𝕆𝕋 𝕋ℍ𝕀𝕊 ℂ𝕆𝕄𝕄𝔼ℕ𝕋... 𝕎𝔼𝕃𝕃...",
+            "𝔱𝔥𝔢 𝔰𝔱𝔲𝔣𝔣 𝔶𝔬𝔲 𝔥𝔢𝔞𝔯𝔡 𝔞𝔟𝔬𝔲𝔱 𝔪𝔢 𝔦𝔰 𝔞 𝔩𝔦𝔢 ℑ 𝔞𝔪 𝔪𝔬𝔯𝔢 𝔴𝔬𝔯𝔰𝔢 𝔱𝔥𝔞𝔫 𝔶𝔬𝔲 𝔱𝔥𝔦𝔫𝔨...",
+            "THE demon inside of me is 𝙛𝙧𝙚𝙚𝙨𝙩𝙖𝙣𝙙𝙞𝙣𝙜",
             "𝖜𝖎𝖘𝖊 𝖎𝖘 𝖓𝖔𝖙 𝖆𝖑𝖜𝖆𝖞𝖘 𝖜𝖎𝖘𝖊",
             "god wish i had PRIORACLUB $$$",
             "꧁༺rJloTau mOu Pir()zh()]{ (c) SoSiS]{oY:XD ",
@@ -3590,8 +3590,6 @@ local function sanitize_watermark_text(text)
     text = tostring(text)
     text = text:gsub("\a%x%x%x%x%x%x%x%x", "")
                :gsub("\a%x%x%x%x%x%x", "")
-               :gsub("\\a%x%x%x%x%x%x%x%x", "")
-               :gsub("\\a%x%x%x%x%x%x", "")
     text = text:gsub("%s+", " " ):gsub("^%s+", ""):gsub("%s+$", "")
     return text
 end
@@ -6071,7 +6069,7 @@ end
 
 -- Trash Talk System Integration
 local phrases = {
-    "ангельские хорни -> https://discord.gg/2pS2CNBb",
+    "1",
     "Ну привет пидар",
     "эммм ну ты бот",
     "пв)",
