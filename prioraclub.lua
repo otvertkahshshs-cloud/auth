@@ -1346,13 +1346,14 @@ local ifc = {
                     status   = group[1]:label("cloud: ready"),
                 },
                 colors = {
-                    first = group[3]:color_picker("\nmenu-first-clr", 59, 208, 182)
+                    first = group[2]:color_picker("\nmenu-first-clr", 59, 208, 182)
                 },
 
                 other = {
                     space = self:space(group[3]),
 
                     info = {},
+                    discord_btn = group[3]:button("\f<v>\r Discord.gg"),
 
                     stats = {
                         build    = group[2]:label("\f<v>\r Your active build: \f<v>" .. db.server.version[1]),
@@ -1443,6 +1444,10 @@ local ifc = {
                     speclist = group[1]:checkbox(" Spectator list"),
                     tracer = group[1]:checkbox(" Bullet tracers"),
                     tracer_color = group[1]:color_picker("\ntracer-color", 150, 210, 30, 255),
+                    hitmarker = group[1]:checkbox("3D Hitmarker"),
+                    hitmarker_color = group[1]:color_picker("\nhitmarker-color", 255, 255, 255, 255),
+                    hitmarker_size = group[1]:slider("\nHitmarker size", 1, 15, 4, true, ""),
+                    hitmarker_duration = group[1]:slider("Hitmarker duration", 1, 5, 3, true, "s"),
                     custom_scope = group[1]:checkbox(" Custom scope lines"),
                     scope_color = group[1]:color_picker("\nscope-color", 0, 0, 0, 255),
                     scope_position = group[1]:slider("\nscope position", 0, 500, 190, true, ""),
@@ -3387,24 +3392,24 @@ extra.clantag = {
 extra.trashtalk = {
     phrases = {
         ["kill"] = {
-            "𝕋𝕆 ℂ𝔸𝕃𝕃 𝕋ℍ𝔼𝕄 ℙ𝕆𝕆ℝ! 𝕀𝔽 𝕐𝕆𝕌 𝔾𝕆𝕋 𝕋ℍ𝕀𝕊 ℂ𝕆𝕄𝕄𝔼ℕ𝕋... 𝕎𝔼𝕃𝕃...",
-            "𝔱𝔥𝔢 𝔰𝔱𝔲𝔣𝔣 𝔶𝔬𝔲 𝔥𝔢𝔞𝔯𝔡 𝔞𝔟𝔬𝔲𝔱 𝔪𝔢 𝔦𝔰 𝔞 𝔩𝔦𝔢 ℑ 𝔞𝔪 𝔪𝔬𝔯𝔢 𝔴𝔬𝔯𝔰𝔢 𝔱𝔥𝔞𝔫 𝔶𝔬𝔲 𝔱𝔥𝔦𝔫𝔨...",
-            "THE demon inside of me is 𝙛𝙧𝙚𝙚𝙨𝙩𝙖𝙣𝙙𝙞𝙣𝙜",
-            "𝖜𝖎𝖘𝖊 𝖎𝖘 𝖓𝖔𝖙 𝖆𝖑𝖜𝖆𝖞𝖘 𝖜𝖎𝖘𝖊",
+            "ангельские хорни -> discord.gg/2pS2CNBb",
+            "трибуны в колизее",
+            "адские пытки",
+            "боантропическое расстройство",
             "god wish i had PRIORACLUB $$$",
-            "꧁༺rJloTau mOu Pir()zh()]{ (c) SoSiS]{oY:XD ",
+            "6eWeHыЙ_KaHrAJl",
             "BY PRIORACLUB 美國人 ? WACHINA ( TEXAS ) يورپ technologies",
-            "HESTON X Khabip Matsuevich - vk.com/burgergodz",
-            "＄＄＄ ｒｉｃｈ ｍｙ club ＄＄＄",
-            "⛧ ᗪᙓᐯᖗᒐ ᴛ.ʍᴇ/ʙurgᴇrgᴏdz ⛧",
+            "DeAgLeGang ♛",
+            "＄＄＄ ｒｉｃｈ ｍｙ c l u b ＄＄＄",
+            "ꊐꏿꅓꂅ10 ꉣꂅꉸꊐꌗꏿꅓꁲ",
             "M C D O N A L D S ｔｏｕｒｎａｍｅｎｔ ｈｉｇｈｌｉｇｈｔｓ ｆｔ ｇａｍｅｓｅｎｓｅ．ｐｕｂ ／ ｓｋｅｅｔ．ｃｃ",
             "$ STAY BURGERGODZ $",
-            "⛧ BLOODYSTAR.COM ⛧",
-            "𝕐𝕆𝕌 𝕂ℕ𝕆𝕎 𝕎ℍ𝔸𝕋 𝕀𝕋 𝕄𝔼𝔸ℕ𝕊! ♛ (◣_◢) ♛",
-            "𝒅𝒂𝒓𝒌 𝒃𝒓𝒆𝒍𝒆𝒂𝒏𝒕 𝒌𝒐𝒓𝒔𝒆𝒔",
-            "𝕥𝕣𝕪 𝕥𝕠 𝕥𝕖𝕤𝕥 𝕞𝕖? (◣◢) 𝕞𝕪 𝕞𝕚𝕕𝕕𝕝𝕖 𝕟𝕒𝕞𝕖 𝕚𝕤 𝕘𝕖𝕟𝕦𝕚𝕟𝕖 𝕡𝕚𝕟 ♛",
-           "u will 𝕣𝕖𝕘𝕣𝕖𝕥 rage vs me when i go on ｌｏｌｚ．d e a l acc.",
-           "#BURGERGODZ crushes your dreams and your skull with the same fucking hand, pathetic loser",
+            "Стаки, кстати, это хорошо",
+            "kiss me thru the phone",
+            "Wʜᴇɴ I ᴀᴜᴛᴏ ᴡᴀʟʟ, ᴀʟʟ ᴅᴏɢs ᴀʀᴇ sɪʟᴇɴᴛ",
+            "【﻿нищееб】",
+           "This dogs dont have chance against prioraclub",
+           "go beg for update from ur lua dev, trash like you belongs nowhere",
         }
     },
     send = function(self, mode, entit)
@@ -5090,6 +5095,81 @@ paint.gap_crosshair.paint = function(self)
 end
 -- ============================================================
 
+
+-- ============================================================
+-- 3D HITMARKER
+-- ============================================================
+local hm_bullet_impact = {}
+local hm_queue = {}
+
+callback.bullet_impact:set(function(e)
+    if client.userid_to_entindex(e.userid) ~= entity.get_local_player() then return end
+    table.insert(hm_bullet_impact, {e.x, e.y, e.z, globals.realtime()})
+end)
+
+callback.player_hurt:set(function(e)
+    if not (menu.other.visuals.hitmarker and menu.other.visuals.hitmarker:get()) then return end
+    local attacker = client.userid_to_entindex(e.attacker)
+    if attacker ~= entity.get_local_player() then return end
+    local victim = client.userid_to_entindex(e.userid)
+    local duration = menu.other.visuals.hitmarker_duration:get()
+    local vx, vy, vz = entity.get_prop(victim, "m_vecOrigin")
+    if not vx then return end
+
+    local best_dist = 100
+    local bx, by, bz = vx, vy, (vz or 0) + 50
+    for i = 1, #hm_bullet_impact do
+        local bi = hm_bullet_impact[i]
+        if bi[4] + duration >= math.floor(globals.realtime()) then
+            local dx = vx - bi[1]
+            local dy = vy - bi[2]
+            local dz = (vz or 0) - bi[3]
+            local dist = math.sqrt(dx*dx + dy*dy + dz*dz)
+            if dist < best_dist then
+                best_dist = dist
+                bx, by, bz = bi[1], bi[2], bi[3]
+            end
+        end
+    end
+    table.insert(hm_queue, {bx, by, bz, globals.realtime()})
+    hm_bullet_impact = {}
+end)
+
+callback.round_start:set(function()
+    hm_bullet_impact = {}
+    hm_queue = {}
+end)
+
+local function render_hitmarker()
+    if not (menu.other.visuals.hitmarker and menu.other.visuals.hitmarker:get()) then return end
+    local now = globals.realtime()
+    local duration = menu.other.visuals.hitmarker_duration:get()
+    local size = menu.other.visuals.hitmarker_size:get()
+    local cr, cg, cb, ca = menu.other.visuals.hitmarker_color:get()
+
+    local i = 1
+    while i <= #hm_queue do
+        local hm = hm_queue[i]
+        local age = now - hm[4]
+        if age > duration then
+            table.remove(hm_queue, i)
+        else
+            local x, y = renderer.world_to_screen(hm[1], hm[2], hm[3])
+            if x and y then
+                local fade = 1 - (age / duration)
+                local a = math.floor(ca * fade)
+                local s = size
+                renderer.line(x - s*2, y - s*2, x - s, y - s, cr, cg, cb, a)
+                renderer.line(x - s*2, y + s*2, x - s, y + s, cr, cg, cb, a)
+                renderer.line(x + s*2, y + s*2, x + s, y + s, cr, cg, cb, a)
+                renderer.line(x + s*2, y - s*2, x + s, y - s, cr, cg, cb, a)
+            end
+            i = i + 1
+        end
+    end
+end
+-- ============================================================
+
 local function render_hud()
     local function draw_pill(x, y, w, h, r, g, b, a)
         local radius = math.floor(h / 2)
@@ -5137,26 +5217,41 @@ local function render_hud()
     -- Custom scope lines
     do
         local cs = menu.other.visuals.custom_scope
-        local me = entity.get_local_player()
-        local is_alive = me ~= nil and entity.is_alive(me)
-        local is_scoped = is_alive and entity.get_prop(me, 'm_bIsScoped') == 1 or false
-        local spd = (cs and cs:get()) and math.max(3, menu.other.visuals.scope_speed:get()) or 3
-        local target = (cs and cs:get() and is_alive and is_scoped) and 1 or 0
-        scope_alpha = scope_alpha + (target - scope_alpha) * globals.frametime() * spd
-        scope_alpha = math.clamp(scope_alpha, 0, 1)
+        if cs then
+            local me = entity.get_local_player()
+            local is_scoped = false
+            if me and entity.is_alive(me) then
+                is_scoped = entity.get_prop(me, 'm_bIsScoped') == 1
+            end
 
-        if scope_alpha > 0.01 and cs and cs:get() then
-            local width, height = client.screen_size()
-            local cr, cg, cb, ca = menu.other.visuals.scope_color:get()
-            local pos = menu.other.visuals.scope_position:get() * height / 1080
-            local off = menu.other.visuals.scope_offset:get() * height / 1080
-            local a = math.floor(ca * scope_alpha)
-            renderer.gradient(width/2, height/2 - pos, 1, pos - off, cr, cg, cb, 0, cr, cg, cb, a, false)
-            renderer.gradient(width/2, height/2 + off, 1, pos - off, cr, cg, cb, a, cr, cg, cb, 0, false)
-            renderer.gradient(width/2 - pos, height/2, pos - off, 1, cr, cg, cb, 0, cr, cg, cb, a, true)
-            renderer.gradient(width/2 + off, height/2, pos - off, 1, cr, cg, cb, a, cr, cg, cb, 0, true)
+            local spd = cs:get() and math.max(2, menu.other.visuals.scope_speed:get()) or 2
+            local target = (cs:get() and is_scoped) and 1 or 0
+
+            -- smooth lerp like oxyshit
+            scope_alpha = scope_alpha + (target - scope_alpha) * math.min(1, globals.frametime() * spd)
+
+            if scope_alpha > 0.005 then
+                local width, height = client.screen_size()
+                local cr, cg, cb, ca = menu.other.visuals.scope_color:get()
+                local pos = menu.other.visuals.scope_position:get() * height / 1080
+                local off = menu.other.visuals.scope_offset:get() * height / 1080
+                local a = math.floor(ca * scope_alpha)
+                local cx = width / 2
+                local cy = height / 2
+
+                -- left
+                renderer.gradient(cx - pos + 2, cy, pos - off, 1, cr, cg, cb, 0, cr, cg, cb, a, true)
+                -- right
+                renderer.gradient(cx - 2 + off, cy, pos - off, 1, cr, cg, cb, a, cr, cg, cb, 0, true)
+                -- top
+                renderer.gradient(cx, cy - pos + 2, 1, pos - off, cr, cg, cb, 0, cr, cg, cb, a, false)
+                -- bottom
+                renderer.gradient(cx, cy + off, 1, pos - off, cr, cg, cb, a, cr, cg, cb, 0, false)
+            end
         end
     end
+
+    render_hitmarker()
 
     if aimbot_logs_notify_enabled() then
         local style = (menu.other.visuals.aimbot_logs.style and menu.other.visuals.aimbot_logs.style:get()) or "Cards"
@@ -5724,6 +5819,18 @@ end)
 -- delay init to ensure UI is fully loaded
 client.delay_call(0.1, function()
     config.update:run()
+
+-- Discord button
+if menu.home.other.discord_btn then
+    menu.home.other.discord_btn:set_callback(function()
+        -- try multiple methods to open URL
+        pcall(function() client.exec("steam://openurl/https://discord.gg/dwfZUSr2") end)
+        pcall(function() panorama.open().SteamOverlayAPI.OpenURL("https://discord.gg/dwfZUSr2") end)
+        clipboard.set("https://discord.gg/dwfZUSr2")
+        client.color_log(59, 208, 182, "[prioraclub] discord.gg/dwfZUSr2\n")
+        table.insert(config_notify, {text = "discord.gg/dwfZUSr2 - link copied!", time = globals.realtime()})
+    end)
+end
     -- restore positions after load
     if data and data.positions then
         draggable:import(data.positions)
