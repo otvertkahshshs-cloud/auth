@@ -595,8 +595,12 @@ local session = {
     start  = 0,  -- set on first frame
 }
 
-local DEFAULT_CFG_NAME = "evildealers"
+local DEFAULT_CFG_NAME = "defensive intave"
+local DEFAULT_CFG_DATA = [[eyJhYSI6eyJidWlsZGVyIjpbeyJlbmFibGUiOmZhbHNlLCJtb2QiOiJPZmYiLCJ5YXdfbW9kZSI6MCwieWF3X2xlZnQiOjAsIm1vZF9kbSI6MCwiYm9keV9zbGlkZXIiOjAsImxhYmVsIjoiICIsImRlbGF5IjoxLCJyYW5kb20iOjAsImJvZHkiOiJPZmYiLCJ5YXdfcmlnaHQiOjAsIm9mZnNldCI6MH0seyJlbmFibGUiOnRydWUsIm1vZCI6IkNlbnRlciIsInlhd19tb2RlIjoxLCJ5YXdfbGVmdCI6LTM1LCJtb2RfZG0iOjUsImJvZHlfc2xpZGVyIjowLCJsYWJlbCI6IiAiLCJkZWxheSI6MiwicmFuZG9tIjo1LCJib2R5IjoiSml0dGVyIiwieWF3X3JpZ2h0Ijo0NSwib2Zmc2V0IjotOX0seyJlbmFibGUiOnRydWUsIm1vZCI6IkNlbnRlciIsInlhd19tb2RlIjowLCJ5YXdfbGVmdCI6NSwibW9kX2RtIjowLCJib2R5X3NsaWRlciI6MCwibGFiZWwiOiIgIiwiZGVsYXkiOjEsInJhbmRvbSI6MCwiYm9keSI6Ik9mZiIsInlhd19yaWdodCI6MjUsIm9mZnNldCI6MH0seyJlbmFibGUiOnRydWUsIm1vZCI6IkNlbnRlciIsInlhd19tb2RlIjoxLCJ5YXdfbGVmdCI6LTI4LCJtb2RfZG0iOjEwLCJib2R5X3NsaWRlciI6MCwibGFiZWwiOiIgIiwiZGVsYXkiOjEsInJhbmRvbSI6MjAsImJvZHkiOiJKaXR0ZXIiLCJ5YXdfcmlnaHQiOjMyLCJvZmZzZXQiOjB9LHsiZW5hYmxlIjp0cnVlLCJtb2QiOiJDZW50ZXIiLCJ5YXdfbW9kZSI6MSwieWF3X2xlZnQiOi0xMywibW9kX2RtIjoxMCwiYm9keV9zbGlkZXIiOjAsImxhYmVsIjoiICIsImRlbGF5IjoxLCJyYW5kb20iOjUsImJvZHkiOiJKaXR0ZXIiLCJ5YXdfcmlnaHQiOjEzLCJvZmZzZXQiOjB9LHsiZW5hYmxlIjp0cnVlLCJtb2QiOiJPZmZzZXQiLCJ5YXdfbW9kZSI6MSwieWF3X2xlZnQiOi0xOSwibW9kX2RtIjowLCJib2R5X3NsaWRlciI6MCwibGFiZWwiOiIgIiwiZGVsYXkiOjQsInJhbmRvbSI6NSwiYm9keSI6IkppdHRlciIsInlhd19yaWdodCI6NTAsIm9mZnNldCI6MH0seyJlbmFibGUiOnRydWUsIm1vZCI6IkNlbnRlciIsInlhd19tb2RlIjoxLCJ5YXdfbGVmdCI6LTI4LCJtb2RfZG0iOjAsImJvZHlfc2xpZGVyIjowLCJsYWJlbCI6IiAiLCJkZWxheSI6MywicmFuZG9tIjoxMywiYm9keSI6IkppdHRlciIsInlhd19yaWdodCI6MzAsIm9mZnNldCI6MH0seyJlbmFibGUiOnRydWUsIm1vZCI6IkNlbnRlciIsInlhd19tb2RlIjoxLCJ5YXdfbGVmdCI6LTIzLCJtb2RfZG0iOjcsImJvZHlfc2xpZGVyIjowLCJsYWJlbCI6IiAiLCJkZWxheSI6MiwicmFuZG9tIjoxMSwiYm9keSI6IkppdHRlciIsInlhd19yaWdodCI6MzcsIm9mZnNldCI6MH0seyJlbmFibGUiOnRydWUsIm1vZCI6IkNlbnRlciIsInlhd19tb2RlIjoxLCJ5YXdfbGVmdCI6LTI4LCJtb2RfZG0iOjksImJvZHlfc2xpZGVyIjowLCJsYWJlbCI6IiAiLCJkZWxheSI6MSwicmFuZG9tIjo0NSwiYm9keSI6IkppdHRlciIsInlhd19yaWdodCI6MzAsIm9mZnNldCI6MH1dLCJzZXR0aW5ncyI6eyJmcmVlc3RhbmRfYmluZCI6ZmFsc2UsImFudGlfYnJ1dGVfc3RhZ2VzIjo0LCJzZXR0aW5nc19jYXRlZ29yeSI6Ilx1MDAwYu6EoVxyIEdlbmVyYWwiLCJtYW51YWxfcmlnaHQiOmZhbHNlLCJkZWZlbnNpdmVfcGl0Y2giOiJSYW5kb20iLCJzYWZlX2hlYWQiOlsiS25pZmUgb24gQWlyICsgQyIsIlRhc2VyIG9uIEFpciArIEMiXSwiYW50aV9icnV0ZV9yYW5nZSI6MzUsImFudGlfYnJ1dGUiOmZhbHNlLCJtYW51YWxfcmVzZXQiOmZhbHNlLCJ0YXJnZXRzIjoiQXQgdGFyZ2V0cyIsImF2b2lkX3NsaWRlciI6MTc1LCJkZWZlbnNpdmVfYWEiOnRydWUsImxhYmVsIjoiICIsImZlYXR1cmVzIjpbIlNhZmUgaGVhZCIsIkF2b2lkIEJhY2tzdGFiIl0sImxhYmVsMSI6IiAiLCJhbnRpX2JydXRlX3RyaWdnZXJzIjp7fSwiZGlyZWN0aW9uIjpbIkZyZWVzdGFuZCIsIk1hbnVhbHMiXSwibW9kZSI6IlNldHRpbmdzIiwibWFudWFsX2ZvcndhcmQiOmZhbHNlLCJkZWZlbnNpdmVfeWF3IjoiUmFuZG9tIiwiY29uZGl0aW9uIjoiRnJlZXN0YW5kIiwibGFiZWwyIjoiICIsImRlZmVuc2l2ZV9tb2RlIjpbIkRvdWJsZSBUYXAiXSwiYW50aV9icnV0ZV9jb29sZG93biI6NiwiZGVmZW5zaXZlX3N0YXRlIjpbIkFpciJdLCJvdmVycmlkZV9zcGlubmVyIjpbIk5vIGVuZW1pZXMiXSwibWFudWFsX2xlZnQiOmZhbHNlfX0sIm1lbnUiOlt7ImNvbG9ycyI6eyJmaXJzdCI6IiMzQkQwQjZGRiJ9LCJjb25maWciOnsibGlzdCI6MSwibmFtZSI6ImludGF2ZSJ9fSx7ImhpdGNoYW5jZV9vdmVycmlkZSI6MCwicHJlZGljdF9pbmQiOnRydWUsIm92ZXJuaWdodF9vZmZfZHRfaHMiOnRydWUsImhpdGNoYW5jZV9kZWZhdWx0IjowLCJoaXRjaGFuY2VfaW5fYWlyIjpmYWxzZSwib3Zlcm5pZ2h0X2JvZHlfeWF3X2ZpeCI6dHJ1ZSwib3Zlcm5pZ2h0X3Vuc2FmZV9yZWNoYXJnZSI6dHJ1ZSwiaGl0Y2hhbmNlX292ZXJyaWRlX2tleSI6WzEsMCwifiJdLCJvdmVybmlnaHRfZml4X2F1dG9zdG9wIjp0cnVlLCJwcmVkaWN0IjpbMCwwLCJ+Il0sInByZWRpY3RfY29sb3IiOiIjRkZGRkZGRkYiLCJoaWRlc2hvdHNfZml4Ijp0cnVlLCJoaXRjaGFuY2VfaW5kaWNhdG9yIjp0cnVlLCJvdmVybmlnaHRfbGNfZml4Ijp0cnVlLCJoaXRjaGFuY2VfaW5fYWlyX3ZhbCI6NTB9LHsidGFiIjoiTWlzYyIsInZpc3VhbHMiOnsibWFuYWdtZW50Ijp7InR5cGUiOlsiVmVsb2NpdHkiLCJ+Il0sInZhbCI6dHJ1ZX0sInNjb3BlX3NwZWVkIjoxMiwidmlld21vZGVsIjp7ImZvdiI6NjgsInBpdGNoIjowLCJ2YWwiOmZhbHNlLCJ5IjowLCJpbl9zY29wZSI6ZmFsc2UsInJvbGwiOjAsIm9wdGlvbnMiOlsifiJdLCJ5YXciOjAsInoiOjAsIngiOjB9LCJhaW1ib3RfbG9ncyI6eyJoaXQiOiIjRDNBMEJCRkYiLCJub3RpZnkiOnRydWUsIm1pc3MiOiIjRTE1MDUwRkYiLCJzdHlsZSI6Ik1pbmltYWwiLCJ2YWwiOnRydWV9LCJzY29wZV9jb2xvciI6IiMwMDAwMDBGRiIsIndhdGVybWFyayI6eyJwb3NpdGlvbiI6IkJvdHRvbSIsInZhbCI6dHJ1ZSwidHlwZSI6IlRleHQiLCJjb2xvcnMiOnsic2Vjb25kIjoiIzhGQzIxNUZGIiwiZmlyc3QiOiIjM0JEMEI2RkYifSwic3R5bGUiOiJEZWZhdWx0In0sInRyYWNlciI6ZmFsc2UsImRhbWFnZSI6eyJ0eXBlIjoiU21hbGwiLCJtb2RlIjoiQWx3YXlzIiwidmFsIjp0cnVlfSwicG9pbnRlcnMiOnsidHlwZSI6IkRlZmF1bHQiLCJ2YWwiOmZhbHNlfSwiem9vbSI6eyJmb3YiOjIwLCJ2YWwiOmZhbHNlLCJzcGVlZCI6MTB9LCJ0cmFjZXJfY29sb3IiOiIjOTZEMjFFRkYiLCJzY29wZV9wb3NpdGlvbiI6MTkwLCJjdXN0b21fc2NvcGUiOmZhbHNlLCJzY29wZV9vZmZzZXQiOjE1LCJzcGVjbGlzdCI6ZmFsc2UsInRoaXJkcGVyc29uIjp7ImRpc3RhbmNlIjo1MCwiY29sbGlzaW9uIjpmYWxzZSwidmFsIjp0cnVlfSwiYXNwZWN0X3JhdGlvIjp7InZhbHVlIjoxMzAsInZhbCI6dHJ1ZX0sImNyb3NzaGFpciI6eyJ0eXBlIjoibW9kZXJuIiwiY29sb3JzIjp7InNlY29uZCI6IiM4RkMyMTVGRiIsImZpcnN0IjoiIzNCRDBCNkZGIn0sInZhbCI6ZmFsc2UsIm1vZGVybiI6eyJtYWluIjoiI0I5QkVGRkZGIiwic3RhdGUiOiIjQjlCRUZGRkYiLCJrZXkiOiIjQjlCRUZGRkYiLCJ0cmFpbCI6IiNCOUJFRkZGRiJ9fSwiYmluZGxpc3QiOmZhbHNlfSwibWlzYyI6eyJmYXN0X2ZhbGxfaCI6WzEsMCwifiJdLCJjbGFudGFnIjp0cnVlLCJ0cmFzaHRhbGsiOnsibW9kZSI6WyJPbiBraWxsIiwifiJdLCJ2YWwiOnRydWV9LCJkdWNrX3NwZWVkIjp0cnVlLCJidXlib3QiOnsibmFkZXMiOlsiU21va2UiLCJNb2xvdG92IiwiSEUiLCJ+Il0sInNlY29uZCI6IkRlYWdsZVwvUjgiLCJvdGhlciI6WyJLZXZsYXIiLCJIZWxtZXQiLCJEZWZ1c2UgS2l0IiwiVGFzZXIiLCJ+Il0sInByaW0iOiJTU0ctMDgiLCJ2YWwiOnRydWV9LCJicmVha2VyIjp7InN1Ym1vZGUiOlsifiJdLCJtb2RlIjoiT2ZmIiwidmFsIjpmYWxzZX0sImNoYXJnZV9maXgiOnRydWUsImZhc3RfZmFsbCI6ZmFsc2UsImZhc3RfbGFkZGVyIjp0cnVlLCJmaWx0ZXIiOnRydWV9fSx7ImZyZWVzdGFuZF9iaW5kIjpbMSw2LCJ+Il0sImFudGlfYnJ1dGVfc3RhZ2VzIjo0LCJzZXR0aW5nc19jYXRlZ29yeSI6Ilx1MDAwYu6EoVxyIEdlbmVyYWwiLCJtYW51YWxfcmlnaHQiOlsxLDAsIn4iXSwiZGVmZW5zaXZlX3BpdGNoIjoiUmFuZG9tIiwic2FmZV9oZWFkIjpbIktuaWZlIG9uIEFpciArIEMiLCJUYXNlciBvbiBBaXIgKyBDIiwifiJdLCJhbnRpX2JydXRlX3JhbmdlIjozNSwiYW50aV9icnV0ZSI6ZmFsc2UsIm1hbnVhbF9yZXNldCI6WzEsMCwifiJdLCJhdm9pZF9zbGlkZXIiOjE3NSwiYnVpbGRlciI6W3siZW5hYmxlIjpmYWxzZSwicmFuZG9tIjowLCJib2R5X3NsaWRlciI6MCwiYm9keSI6Ik9mZiIsIm1vZCI6Ik9mZiIsIm9mZnNldCI6MCwiZGVsYXkiOjEsIm1vZF9kbSI6MCwieWF3X2xlZnQiOjAsInlhd19yaWdodCI6MCwieWF3X21vZGUiOjB9LHsiZW5hYmxlIjp0cnVlLCJyYW5kb20iOjUsImJvZHlfc2xpZGVyIjowLCJib2R5IjoiSml0dGVyIiwibW9kIjoiQ2VudGVyIiwib2Zmc2V0IjotOSwiZGVsYXkiOjIsIm1vZF9kbSI6NSwieWF3X2xlZnQiOi0zNSwieWF3X3JpZ2h0Ijo0NSwieWF3X21vZGUiOjF9LHsiZW5hYmxlIjp0cnVlLCJyYW5kb20iOjAsImJvZHlfc2xpZGVyIjowLCJib2R5IjoiT2ZmIiwibW9kIjoiQ2VudGVyIiwib2Zmc2V0IjowLCJkZWxheSI6MSwibW9kX2RtIjowLCJ5YXdfbGVmdCI6NSwieWF3X3JpZ2h0IjoyNSwieWF3X21vZGUiOjB9LHsiZW5hYmxlIjp0cnVlLCJyYW5kb20iOjIwLCJib2R5X3NsaWRlciI6MCwiYm9keSI6IkppdHRlciIsIm1vZCI6IkNlbnRlciIsIm9mZnNldCI6MCwiZGVsYXkiOjEsIm1vZF9kbSI6MTAsInlhd19sZWZ0IjotMjgsInlhd19yaWdodCI6MzIsInlhd19tb2RlIjoxfSx7ImVuYWJsZSI6dHJ1ZSwicmFuZG9tIjo1LCJib2R5X3NsaWRlciI6MCwiYm9keSI6IkppdHRlciIsIm1vZCI6IkNlbnRlciIsIm9mZnNldCI6MCwiZGVsYXkiOjEsIm1vZF9kbSI6MTAsInlhd19sZWZ0IjotMTMsInlhd19yaWdodCI6MTMsInlhd19tb2RlIjoxfSx7ImVuYWJsZSI6dHJ1ZSwicmFuZG9tIjo1LCJib2R5X3NsaWRlciI6MCwiYm9keSI6IkppdHRlciIsIm1vZCI6Ik9mZnNldCIsIm9mZnNldCI6MCwiZGVsYXkiOjQsIm1vZF9kbSI6MCwieWF3X2xlZnQiOi0xOSwieWF3X3JpZ2h0Ijo1MCwieWF3X21vZGUiOjF9LHsiZW5hYmxlIjp0cnVlLCJyYW5kb20iOjEzLCJib2R5X3NsaWRlciI6MCwiYm9keSI6IkppdHRlciIsIm1vZCI6IkNlbnRlciIsIm9mZnNldCI6MCwiZGVsYXkiOjMsIm1vZF9kbSI6MCwieWF3X2xlZnQiOi0yOCwieWF3X3JpZ2h0IjozMCwieWF3X21vZGUiOjF9LHsiZW5hYmxlIjp0cnVlLCJyYW5kb20iOjExLCJib2R5X3NsaWRlciI6MCwiYm9keSI6IkppdHRlciIsIm1vZCI6IkNlbnRlciIsIm9mZnNldCI6MCwiZGVsYXkiOjIsIm1vZF9kbSI6NywieWF3X2xlZnQiOi0yMywieWF3X3JpZ2h0IjozNywieWF3X21vZGUiOjF9LHsiZW5hYmxlIjp0cnVlLCJyYW5kb20iOjQ1LCJib2R5X3NsaWRlciI6MCwiYm9keSI6IkppdHRlciIsIm1vZCI6IkNlbnRlciIsIm9mZnNldCI6MCwiZGVsYXkiOjEsIm1vZF9kbSI6OSwieWF3X2xlZnQiOi0yOCwieWF3X3JpZ2h0IjozMCwieWF3X21vZGUiOjF9XSwiZmVhdHVyZXMiOlsiU2FmZSBoZWFkIiwiQXZvaWQgQmFja3N0YWIiLCJ+Il0sImRlZmVuc2l2ZV95YXciOiJSYW5kb20iLCJhbnRpX2JydXRlX3RyaWdnZXJzIjpbIn4iXSwiZGlyZWN0aW9uIjpbIkZyZWVzdGFuZCIsIk1hbnVhbHMiLCJ+Il0sIm1vZGUiOiJTZXR0aW5ncyIsIm1hbnVhbF9mb3J3YXJkIjpbMSwzOCwifiJdLCJtYW51YWxfbGVmdCI6WzEsMCwifiJdLCJkZWZlbnNpdmVfYWEiOnRydWUsImRlZmVuc2l2ZV9zdGF0ZSI6WyJBaXIiLCJ+Il0sImNvbmRpdGlvbiI6IkZyZWVzdGFuZCIsImFudGlfYnJ1dGVfY29vbGRvd24iOjYsImRlZmVuc2l2ZV9tb2RlIjpbIkRvdWJsZSBUYXAiLCJ+Il0sIm92ZXJyaWRlX3NwaW5uZXIiOlsiTm8gZW5lbWllcyIsIn4iXSwidGFyZ2V0cyI6IkF0IHRhcmdldHMifV0sInNjaGVtYSI6MiwicG9zaXRpb25zIjp7InZlbG9jaXR5Ijp7InkiOjk0LCJ4Ijo5MDB9LCJjcm9zc2hhaXIiOnsieSI6NTY5LCJ4Ijo5MzV9LCJwb2ludGVzIjp7InkiOjUyOSwieCI6MTAxMH0sImFpbWJvdF9sb2dzIjp7InkiOjc5NSwieCI6ODQwfSwic3BlY2xpc3QiOnsieSI6MzIwLCJ4Ijo0MjB9LCJ3YXRlcm1hcmsiOnsieSI6MTA1OCwieCI6OTYwfSwiYmluZHMiOnsieSI6MzgxLCJ4Ijo0MTB9LCJkYW1hZ2UiOnsieSI6NTI0LCJ4Ijo5NzB9LCJkZWZlbnNpdmUiOnsieSI6NDAwLCJ4Ijo5MDB9fX0=]]
+
+local DEFAULT_CFG_NAME = "evildealers main"
 local DEFAULT_CFG_DATA = [[eyJhYSI6eyJidWlsZGVyIjpbeyJlbmFibGUiOmZhbHNlLCJtb2QiOiJPZmYiLCJ5YXdfbW9kZSI6MCwieWF3X2xlZnQiOjAsIm1vZF9kbSI6MCwiYm9keV9zbGlkZXIiOjAsImxhYmVsIjoiICIsImRlbGF5IjoxLCJyYW5kb20iOjAsImJvZHkiOiJPZmYiLCJ5YXdfcmlnaHQiOjAsIm9mZnNldCI6MH0seyJlbmFibGUiOnRydWUsIm1vZCI6IkNlbnRlciIsInlhd19tb2RlIjoxLCJ5YXdfbGVmdCI6LTM1LCJtb2RfZG0iOjUsImJvZHlfc2xpZGVyIjowLCJsYWJlbCI6IiAiLCJkZWxheSI6MiwicmFuZG9tIjo1LCJib2R5IjoiSml0dGVyIiwieWF3X3JpZ2h0Ijo0NSwib2Zmc2V0IjotOX0seyJlbmFibGUiOnRydWUsIm1vZCI6IkNlbnRlciIsInlhd19tb2RlIjowLCJ5YXdfbGVmdCI6NSwibW9kX2RtIjowLCJib2R5X3NsaWRlciI6MCwibGFiZWwiOiIgIiwiZGVsYXkiOjEsInJhbmRvbSI6MCwiYm9keSI6Ik9mZiIsInlhd19yaWdodCI6MjUsIm9mZnNldCI6MH0seyJlbmFibGUiOnRydWUsIm1vZCI6IkNlbnRlciIsInlhd19tb2RlIjoxLCJ5YXdfbGVmdCI6LTI4LCJtb2RfZG0iOjEwLCJib2R5X3NsaWRlciI6MCwibGFiZWwiOiIgIiwiZGVsYXkiOjEsInJhbmRvbSI6MjAsImJvZHkiOiJKaXR0ZXIiLCJ5YXdfcmlnaHQiOjMyLCJvZmZzZXQiOjB9LHsiZW5hYmxlIjp0cnVlLCJtb2QiOiJDZW50ZXIiLCJ5YXdfbW9kZSI6MSwieWF3X2xlZnQiOi0xMywibW9kX2RtIjoxMCwiYm9keV9zbGlkZXIiOjAsImxhYmVsIjoiICIsImRlbGF5IjoxLCJyYW5kb20iOjUsImJvZHkiOiJKaXR0ZXIiLCJ5YXdfcmlnaHQiOjEzLCJvZmZzZXQiOjB9LHsiZW5hYmxlIjp0cnVlLCJtb2QiOiJPZmZzZXQiLCJ5YXdfbW9kZSI6MSwieWF3X2xlZnQiOi0xOSwibW9kX2RtIjowLCJib2R5X3NsaWRlciI6MCwibGFiZWwiOiIgIiwiZGVsYXkiOjQsInJhbmRvbSI6NSwiYm9keSI6IkppdHRlciIsInlhd19yaWdodCI6NTAsIm9mZnNldCI6MH0seyJlbmFibGUiOnRydWUsIm1vZCI6IkNlbnRlciIsInlhd19tb2RlIjoxLCJ5YXdfbGVmdCI6LTI4LCJtb2RfZG0iOjAsImJvZHlfc2xpZGVyIjowLCJsYWJlbCI6IiAiLCJkZWxheSI6MywicmFuZG9tIjoxMywiYm9keSI6IkppdHRlciIsInlhd19yaWdodCI6MzAsIm9mZnNldCI6MH0seyJlbmFibGUiOnRydWUsIm1vZCI6IkNlbnRlciIsInlhd19tb2RlIjoxLCJ5YXdfbGVmdCI6LTIzLCJtb2RfZG0iOjcsImJvZHlfc2xpZGVyIjowLCJsYWJlbCI6IiAiLCJkZWxheSI6MiwicmFuZG9tIjoxMSwiYm9keSI6IkppdHRlciIsInlhd19yaWdodCI6MzcsIm9mZnNldCI6MH0seyJlbmFibGUiOnRydWUsIm1vZCI6IkNlbnRlciIsInlhd19tb2RlIjoxLCJ5YXdfbGVmdCI6LTI4LCJtb2RfZG0iOjksImJvZHlfc2xpZGVyIjowLCJsYWJlbCI6IiAiLCJkZWxheSI6MSwicmFuZG9tIjo0NSwiYm9keSI6IkppdHRlciIsInlhd19yaWdodCI6MzAsIm9mZnNldCI6MH1dLCJzZXR0aW5ncyI6eyJmcmVlc3RhbmRfYmluZCI6ZmFsc2UsImFudGlfYnJ1dGVfc3RhZ2VzIjo0LCJzZXR0aW5nc19jYXRlZ29yeSI6Ilx1MDAwYu6EoVxyIEdlbmVyYWwiLCJtYW51YWxfcmlnaHQiOmZhbHNlLCJkZWZlbnNpdmVfcGl0Y2giOiJEZWZhdWx0Iiwic2FmZV9oZWFkIjpbIktuaWZlIG9uIEFpciArIEMiXSwiYW50aV9icnV0ZV9yYW5nZSI6MzUsImFudGlfYnJ1dGUiOmZhbHNlLCJtYW51YWxfcmVzZXQiOmZhbHNlLCJ0YXJnZXRzIjoiQXQgdGFyZ2V0cyIsImF2b2lkX3NsaWRlciI6MTc1LCJkZWZlbnNpdmVfYWEiOmZhbHNlLCJsYWJlbCI6IiAiLCJmZWF0dXJlcyI6WyJBdm9pZCBCYWNrc3RhYiJdLCJsYWJlbDEiOiIgIiwiYW50aV9icnV0ZV90cmlnZ2VycyI6e30sImRpcmVjdGlvbiI6WyJGcmVlc3RhbmQiLCJNYW51YWxzIl0sIm1vZGUiOiJCdWlsZGVyIiwibWFudWFsX2ZvcndhcmQiOmZhbHNlLCJkZWZlbnNpdmVfeWF3IjoiRGVmYXVsdCIsImNvbmRpdGlvbiI6IkZyZWVzdGFuZCIsImxhYmVsMiI6IiAiLCJkZWZlbnNpdmVfbW9kZSI6e30sImFudGlfYnJ1dGVfY29vbGRvd24iOjYsImRlZmVuc2l2ZV9zdGF0ZSI6e30sIm92ZXJyaWRlX3NwaW5uZXIiOlsiTm8gZW5lbWllcyJdLCJtYW51YWxfbGVmdCI6ZmFsc2V9fSwibWVudSI6W3siY29sb3JzIjp7ImZpcnN0IjoiIzNCRDBCNkZGIn0sImNvbmZpZyI6eyJsaXN0IjoxLCJuYW1lIjoiY2VsZXN0aWFsZmFuZzIifX0seyJoaXRjaGFuY2Vfb3ZlcnJpZGUiOjAsInByZWRpY3RfaW5kIjpmYWxzZSwib3Zlcm5pZ2h0X29mZl9kdF9ocyI6dHJ1ZSwiaGl0Y2hhbmNlX2RlZmF1bHQiOjAsImhpdGNoYW5jZV9pbl9haXIiOmZhbHNlLCJvdmVybmlnaHRfYm9keV95YXdfZml4Ijp0cnVlLCJvdmVybmlnaHRfdW5zYWZlX3JlY2hhcmdlIjp0cnVlLCJoaXRjaGFuY2Vfb3ZlcnJpZGVfa2V5IjpbMSwwLCJ+Il0sIm92ZXJuaWdodF9maXhfYXV0b3N0b3AiOnRydWUsInByZWRpY3QiOlsxLDAsIn4iXSwicHJlZGljdF9jb2xvciI6IiNGRkZGRkZGRiIsImhpZGVzaG90c19maXgiOnRydWUsImhpdGNoYW5jZV9pbmRpY2F0b3IiOmZhbHNlLCJvdmVybmlnaHRfbGNfZml4Ijp0cnVlLCJoaXRjaGFuY2VfaW5fYWlyX3ZhbCI6NTB9LHsidGFiIjoiTWlzYyIsInZpc3VhbHMiOnsibWFuYWdtZW50Ijp7InR5cGUiOlsiVmVsb2NpdHkiLCJ+Il0sInZhbCI6dHJ1ZX0sImNyb3NzaGFpciI6eyJ0eXBlIjoibW9kZXJuIiwiY29sb3JzIjp7InNlY29uZCI6IiM4RkMyMTVGRiIsImZpcnN0IjoiIzNCRDBCNkZGIn0sInZhbCI6ZmFsc2UsIm1vZGVybiI6eyJtYWluIjoiI0I5QkVGRkZGIiwic3RhdGUiOiIjQjlCRUZGRkYiLCJrZXkiOiIjQjlCRUZGRkYiLCJ0cmFpbCI6IiNCOUJFRkZGRiJ9fSwidGhpcmRwZXJzb24iOnsiZGlzdGFuY2UiOjUwLCJjb2xsaXNpb24iOmZhbHNlLCJ2YWwiOnRydWV9LCJhaW1ib3RfbG9ncyI6eyJoaXQiOiIjRDNBMEJCRkYiLCJub3RpZnkiOnRydWUsIm1pc3MiOiIjRTE1MDUwRkYiLCJzdHlsZSI6Ik1pbmltYWwiLCJ2YWwiOnRydWV9LCJzcGVjbGlzdCI6ZmFsc2UsIndhdGVybWFyayI6eyJwb3NpdGlvbiI6IkJvdHRvbSIsInZhbCI6dHJ1ZSwidHlwZSI6IlRleHQiLCJjb2xvcnMiOnsic2Vjb25kIjoiIzhGQzIxNUZGIiwiZmlyc3QiOiIjM0JEMEI2RkYifSwic3R5bGUiOiJEZWZhdWx0In0sInpvb20iOnsiZm92IjoyMCwidmFsIjpmYWxzZSwic3BlZWQiOjEwfSwidmlld21vZGVsIjp7ImZvdiI6NjgsInBpdGNoIjowLCJ2YWwiOmZhbHNlLCJ5IjowLCJpbl9zY29wZSI6ZmFsc2UsInJvbGwiOjAsIm9wdGlvbnMiOlsifiJdLCJ5YXciOjAsInoiOjAsIngiOjB9LCJhc3BlY3RfcmF0aW8iOnsidmFsdWUiOjEzMCwidmFsIjp0cnVlfSwiZGFtYWdlIjp7InR5cGUiOiJTbWFsbCIsIm1vZGUiOiJBbHdheXMiLCJ2YWwiOnRydWV9LCJwb2ludGVycyI6eyJ0eXBlIjoiRGVmYXVsdCIsInZhbCI6ZmFsc2V9LCJiaW5kbGlzdCI6ZmFsc2V9LCJtaXNjIjp7ImZhc3RfZmFsbF9oIjpbMSwwLCJ+Il0sImNsYW50YWciOnRydWUsInRyYXNodGFsayI6eyJtb2RlIjpbIk9uIGtpbGwiLCJ+Il0sInZhbCI6ZmFsc2V9LCJkdWNrX3NwZWVkIjp0cnVlLCJidXlib3QiOnsibmFkZXMiOlsiU21va2UiLCJ+Il0sInNlY29uZCI6IkRlYWdsZVwvUjgiLCJvdGhlciI6WyJLZXZsYXIiLCJ+Il0sInByaW0iOiJTU0ctMDgiLCJ2YWwiOmZhbHNlfSwiYnJlYWtlciI6eyJzdWJtb2RlIjpbIn4iXSwibW9kZSI6Ik9mZiIsInZhbCI6ZmFsc2V9LCJjaGFyZ2VfZml4Ijp0cnVlLCJmYXN0X2ZhbGwiOmZhbHNlLCJmYXN0X2xhZGRlciI6dHJ1ZSwiZmlsdGVyIjp0cnVlfX0seyJmcmVlc3RhbmRfYmluZCI6WzEsMTgsIn4iXSwiYW50aV9icnV0ZV9zdGFnZXMiOjQsInNldHRpbmdzX2NhdGVnb3J5IjoiXHUwMDBi7oShXHIgR2VuZXJhbCIsIm1hbnVhbF9yaWdodCI6WzEsMCwifiJdLCJkZWZlbnNpdmVfcGl0Y2giOiJEZWZhdWx0Iiwic2FmZV9oZWFkIjpbIktuaWZlIG9uIEFpciArIEMiLCJ+Il0sImFudGlfYnJ1dGVfcmFuZ2UiOjM1LCJhbnRpX2JydXRlIjpmYWxzZSwibWFudWFsX3Jlc2V0IjpbMSwwLCJ+Il0sImF2b2lkX3NsaWRlciI6MTc1LCJidWlsZGVyIjpbeyJlbmFibGUiOmZhbHNlLCJyYW5kb20iOjAsImJvZHlfc2xpZGVyIjowLCJib2R5IjoiT2ZmIiwibW9kIjoiT2ZmIiwib2Zmc2V0IjowLCJkZWxheSI6MSwibW9kX2RtIjowLCJ5YXdfbGVmdCI6MCwieWF3X3JpZ2h0IjowLCJ5YXdfbW9kZSI6MH0seyJlbmFibGUiOnRydWUsInJhbmRvbSI6NSwiYm9keV9zbGlkZXIiOjAsImJvZHkiOiJKaXR0ZXIiLCJtb2QiOiJDZW50ZXIiLCJvZmZzZXQiOi05LCJkZWxheSI6MiwibW9kX2RtIjo1LCJ5YXdfbGVmdCI6LTM1LCJ5YXdfcmlnaHQiOjQ1LCJ5YXdfbW9kZSI6MX0seyJlbmFibGUiOnRydWUsInJhbmRvbSI6MCwiYm9keV9zbGlkZXIiOjAsImJvZHkiOiJPZmYiLCJtb2QiOiJDZW50ZXIiLCJvZmZzZXQiOjAsImRlbGF5IjoxLCJtb2RfZG0iOjAsInlhd19sZWZ0Ijo1LCJ5YXdfcmlnaHQiOjI1LCJ5YXdfbW9kZSI6MH0seyJlbmFibGUiOnRydWUsInJhbmRvbSI6MjAsImJvZHlfc2xpZGVyIjowLCJib2R5IjoiSml0dGVyIiwibW9kIjoiQ2VudGVyIiwib2Zmc2V0IjowLCJkZWxheSI6MSwibW9kX2RtIjoxMCwieWF3X2xlZnQiOi0yOCwieWF3X3JpZ2h0IjozMiwieWF3X21vZGUiOjF9LHsiZW5hYmxlIjp0cnVlLCJyYW5kb20iOjUsImJvZHlfc2xpZGVyIjowLCJib2R5IjoiSml0dGVyIiwibW9kIjoiQ2VudGVyIiwib2Zmc2V0IjowLCJkZWxheSI6MSwibW9kX2RtIjoxMCwieWF3X2xlZnQiOi0xMywieWF3X3JpZ2h0IjoxMywieWF3X21vZGUiOjF9LHsiZW5hYmxlIjp0cnVlLCJyYW5kb20iOjUsImJvZHlfc2xpZGVyIjowLCJib2R5IjoiSml0dGVyIiwibW9kIjoiT2Zmc2V0Iiwib2Zmc2V0IjowLCJkZWxheSI6NCwibW9kX2RtIjowLCJ5YXdfbGVmdCI6LTE5LCJ5YXdfcmlnaHQiOjUwLCJ5YXdfbW9kZSI6MX0seyJlbmFibGUiOnRydWUsInJhbmRvbSI6MTMsImJvZHlfc2xpZGVyIjowLCJib2R5IjoiSml0dGVyIiwibW9kIjoiQ2VudGVyIiwib2Zmc2V0IjowLCJkZWxheSI6MywibW9kX2RtIjowLCJ5YXdfbGVmdCI6LTI4LCJ5YXdfcmlnaHQiOjMwLCJ5YXdfbW9kZSI6MX0seyJlbmFibGUiOnRydWUsInJhbmRvbSI6MTEsImJvZHlfc2xpZGVyIjowLCJib2R5IjoiSml0dGVyIiwibW9kIjoiQ2VudGVyIiwib2Zmc2V0IjowLCJkZWxheSI6MiwibW9kX2RtIjo3LCJ5YXdfbGVmdCI6LTIzLCJ5YXdfcmlnaHQiOjM3LCJ5YXdfbW9kZSI6MX0seyJlbmFibGUiOnRydWUsInJhbmRvbSI6NDUsImJvZHlfc2xpZGVyIjowLCJib2R5IjoiSml0dGVyIiwibW9kIjoiQ2VudGVyIiwib2Zmc2V0IjowLCJkZWxheSI6MSwibW9kX2RtIjo5LCJ5YXdfbGVmdCI6LTI4LCJ5YXdfcmlnaHQiOjMwLCJ5YXdfbW9kZSI6MX1dLCJmZWF0dXJlcyI6WyJBdm9pZCBCYWNrc3RhYiIsIn4iXSwiZGVmZW5zaXZlX3lhdyI6IkRlZmF1bHQiLCJhbnRpX2JydXRlX3RyaWdnZXJzIjpbIn4iXSwiZGlyZWN0aW9uIjpbIkZyZWVzdGFuZCIsIk1hbnVhbHMiLCJ+Il0sIm1vZGUiOiJCdWlsZGVyIiwibWFudWFsX2ZvcndhcmQiOlsxLDM4LCJ+Il0sIm1hbnVhbF9sZWZ0IjpbMSwwLCJ+Il0sImRlZmVuc2l2ZV9hYSI6ZmFsc2UsImRlZmVuc2l2ZV9zdGF0ZSI6WyJ+Il0sImNvbmRpdGlvbiI6IkZyZWVzdGFuZCIsImFudGlfYnJ1dGVfY29vbGRvd24iOjYsImRlZmVuc2l2ZV9tb2RlIjpbIn4iXSwib3ZlcnJpZGVfc3Bpbm5lciI6WyJObyBlbmVtaWVzIiwifiJdLCJ0YXJnZXRzIjoiQXQgdGFyZ2V0cyJ9XSwic2NoZW1hIjoyLCJwb3NpdGlvbnMiOnsidmVsb2NpdHkiOnsieSI6OTQsIngiOjkwMH0sImNyb3NzaGFpciI6eyJ5Ijo1NjksIngiOjkzNX0sInBvaW50ZXMiOnsieSI6NTI5LCJ4IjoxMDEwfSwiYWltYm90X2xvZ3MiOnsieSI6Nzk1LCJ4Ijo4NDB9LCJzcGVjbGlzdCI6eyJ5IjozMjAsIngiOjQyMH0sIndhdGVybWFyayI6eyJ5IjoxMDU4LCJ4Ijo5NjB9LCJiaW5kcyI6eyJ5IjozODEsIngiOjQxMH0sImRhbWFnZSI6eyJ5Ijo1MjQsIngiOjk3MH0sImRlZmVuc2l2ZSI6eyJ5Ijo0MDAsIngiOjkwMH19fQ==]]
+
 
 local function ensure_default_config()
     if type(data) ~= "table" then
@@ -1334,16 +1338,6 @@ local ifc = {
                     load = group[1]:button("\f<v>\r  Load"),
                     export = group[1]:button(" Export in clipboard"),
                     delete = group[1]:button("\f<red>  Delete"),
-                    cloud_btn = group[1]:button("\f<v>\r ☁ Go to cloud presets"),
-                },
-                cloud = {
-                    back_btn = group[1]:button("\f<v>\r ← Back to local"),
-                    list     = group[1]:listbox("\nlist-cloud", {}),
-                    name     = group[1]:textbox("\nname-cloud"),
-                    upload   = group[1]:button("\f<v>\r ☁ Upload preset"),
-                    load     = group[1]:button("\f<v>\r  Load preset"),
-                    delete   = group[1]:button("\f<red>  Delete preset"),
-                    status   = group[1]:label("cloud: ready"),
                 },
                 colors = {
                     first = group[2]:color_picker("\nmenu-first-clr", 59, 208, 182)
@@ -1444,7 +1438,7 @@ local ifc = {
                     speclist = group[1]:checkbox(" Spectator list"),
                     tracer = group[1]:checkbox(" Bullet tracers"),
                     tracer_color = group[1]:color_picker("\ntracer-color", 150, 210, 30, 255),
-                    hitmarker = group[1]:checkbox(" 3D Hitmarker"),
+                    hitmarker = group[1]:checkbox("3D Hitmarker"),
                     hitmarker_color = group[1]:color_picker("\nhitmarker-color", 255, 255, 255, 255),
                     hitmarker_size = group[1]:slider("\nHitmarker size", 1, 15, 4, true, ""),
                     hitmarker_duration = group[1]:slider("Hitmarker duration", 1, 5, 3, true, "s"),
@@ -1537,7 +1531,7 @@ local ifc = {
                     clantag = group[3]:checkbox("Clantag"),
                     trashtalk = self.hidden(group[3]:checkbox("Trashtalk"), function(val)
                         return {
-                            mode = group[3]:multiselect("\ntrashtalk:mode", {"On kill"}):depend({val, true})
+                            mode = group[3]:multiselect("\ntrashtalk:mode", {"On kill", "On death"}):depend({val, true})
                         }
                     end),
                     filter = group[3]:checkbox("Console filter"), -- @flag102
@@ -3392,24 +3386,24 @@ extra.clantag = {
 extra.trashtalk = {
     phrases = {
         ["kill"] = {
-            "ангельские хорни -> discord.gg/2pS2CNBb",
+            "ангельские хорни -> discord.gg/cpg3GxwUXq",
             "трибуны в колизее",
             "адские пытки",
             "боантропическое расстройство",
             "god wish i had PRIORACLUB $$$",
-            "6eWeHыЙ_KaHrAJl",
-            "BY PRIORACLUB 美國人 ? WACHINA ( TEXAS ) يورپ technologies",
-            "DeAgLeGang ♛",
-            "＄＄＄ ｒｉｃｈ ｍｙ c l u b ＄＄＄",
+            "я еду в тотенхэм",
+            "hood2hood ◣◢",
+            "𝙮𝙤𝙪𝙩𝙪𝙗𝙚.𝙘𝙤𝙢/@𝙚𝙫𝙞𝙡𝙙𝙚𝙖𝙡𝙚𝙧𝙨",
+            ".::КеМеРоВо::.",
+            "салют",
             "ꊐꏿꅓꂅ10 ꉣꂅꉸꊐꌗꏿꅓꁲ",
-            "M C D O N A L D S ｔｏｕｒｎａｍｅｎｔ ｈｉｇｈｌｉｇｈｔｓ ｆｔ ｇａｍｅｓｅｎｓｅ．ｐｕｂ ／ ｓｋｅｅｔ．ｃｃ",
             "$ STAY BURGERGODZ $",
             "Стаки, кстати, это хорошо",
             "kiss me thru the phone",
             "Wʜᴇɴ I ᴀᴜᴛᴏ ᴡᴀʟʟ, ᴀʟʟ ᴅᴏɢs ᴀʀᴇ sɪʟᴇɴᴛ",
             "【﻿нищееб】",
-           "This dogs dont have chance against prioraclub",
-           "go beg for update from ur lua dev, trash like you belongs nowhere",
+            "This dogs dont have chance against prioraclub",
+            "go beg for update from ur lua dev, trash like you belongs nowhere",
         }
     },
     send = function(self, mode, entit)
@@ -3518,8 +3512,8 @@ extra.breaker = { -- @flag102
 
 extra.filter = {
     work = function(check)
-        cvar.con_filter_enable:set_int(check.value and 1 or 0)
-        cvar.con_filter_text:set_string(check.value and "" or "")
+        cvar.con_filter_enable:set_int(check.value and 2 or 0)
+        cvar.con_filter_text:set_string(check.value and "PrioraClub" or "")
     end,
 
     release = function(self)
@@ -3604,15 +3598,6 @@ end, true)
 
 menu.home.colors.first:set_callback(function()
     update_menu_color_labels()
-end, true)
-
--- re-apply cloud visibility when switching tabs
-menu.tab:set_callback(function()
-    client.delay_call(0, function() pcall(cloud_show, cloud_view) end)
-end, true)
-
-menu.other.tab:set_callback(function()
-    client.delay_call(0, function() pcall(cloud_show, cloud_view) end)
 end, true)
 
 local viewmodel_options = {false, false, false}
@@ -5820,7 +5805,6 @@ end)
 client.delay_call(0.1, function()
     config.update:run()
 
--- Discord button
 if menu.home.other.discord_btn then
     menu.home.other.discord_btn:set_callback(function()
         -- try multiple methods to open URL
@@ -5836,229 +5820,65 @@ end
         draggable:import(data.positions)
     end
     -- hide cloud again after config load
-    pcall(cloud_show, false)
+
 end)
 
--- ============================================================
--- CLOUD PRESETS
--- ============================================================
-local CLOUD_BIN_ID  = "69e1cb1daaba8821970ac7ef"
-local CLOUD_API_KEY = "$2a$10$DVNjLLF8t68rGq/vMfGCTeZSdrh8YR0wjojQN25xtEe7iBtNQbTK2"
-local CLOUD_URL     = "https://api.jsonbin.io/v3/b/" .. CLOUD_BIN_ID
 
-local cloud_view = false  -- false = local, true = cloud
-local cloud_data = {}     -- cached presets from server
-
-local function cloud_set_status(text, r, g, b)
-    local lbl = menu.home.cloud.status
-    if lbl and lbl.set then
-        lbl:set("cloud: " .. text)
-    elseif lbl and lbl.set_text then
-        lbl:set_text("cloud: " .. text)
-    end
-    client.color_log(r or 150, g or 150, b or 170, "[cloud] " .. text .. "\n")
-end
-
-local function cloud_update_list()
-    local names = {}
-    for k, _ in pairs(cloud_data) do
-        table.insert(names, k)
-    end
-    table.sort(names)
-    if #names == 0 then names = {"-"} end
-    menu.home.cloud.list:update(names)
-end
-
-local function cloud_fetch(cb)
-    cloud_set_status("fetching...", 150, 150, 170)
-    http.get(CLOUD_URL .. "/latest", function(success, body)
-        if not success then
-            cloud_set_status("fetch failed", 220, 60, 60)
-            if cb then cb(false) end
-            return
-        end
-        local data = type(body) == "table" and (body.body or "") or tostring(body)
-        local ok, parsed = pcall(function()
-            -- extract "record" field
-            local rec = data:match('"record"%s*:%s*(%b{})')
-            if not rec then return {} end
-            local presets = rec:match('"presets"%s*:%s*(%b{})')
-            if not presets then return {} end
-            local result = {}
-            for name, val in presets:gmatch('"([^"]+)"%s*:%s*"([^"]*)"') do
-                result[name] = val
-            end
-            return result
-        end)
-        if ok and type(parsed) == "table" then
-            cloud_data = parsed
-            cloud_update_list()
-            cloud_set_status("loaded " .. tostring(#(function() local t={} for k in pairs(parsed) do t[#t+1]=k end return t end)()) .. " presets", 59, 208, 182)
-            if cb then cb(true) end
-        else
-            cloud_set_status("parse error", 220, 60, 60)
-            if cb then cb(false) end
-        end
-    end)
-end
-
-local function cloud_build_json()
-    local entries = {}
-    for k, v in pairs(cloud_data) do
-        local escaped = v:gsub('\\', '\\\\'):gsub('"', '\\"')
-        table.insert(entries, '"' .. k .. '":"' .. escaped .. '"')
-    end
-    return '{"presets":{' .. table.concat(entries, ",") .. "}}"
-end
-
-local function cloud_push(cb)
-    local json_body = cloud_build_json()
-    local req = {
-        url     = CLOUD_URL,
-        method  = "PUT",
-        headers = {
-            ["Content-Type"]  = "application/json",
-            ["X-Master-Key"]  = CLOUD_API_KEY,
-            ["X-Bin-Versioning"] = "false"
-        },
-        body = json_body
-    }
-    if http.request then
-        http.request(req, function(success, body)
-            if success then
-                cloud_set_status("synced!", 59, 208, 182)
-            else
-                cloud_set_status("sync failed", 220, 60, 60)
-            end
-            if cb then cb(success) end
-        end)
-    elseif http.post then
-        http.post(CLOUD_URL, json_body, {
-            ["Content-Type"] = "application/json",
-            ["X-Master-Key"] = CLOUD_API_KEY,
-            ["X-Bin-Versioning"] = "false"
-        }, function(success, body)
-            if success then
-                cloud_set_status("synced!", 59, 208, 182)
-            else
-                cloud_set_status("sync failed (no PUT)", 220, 60, 60)
-            end
-            if cb then cb(success) end
-        end)
-    else
-        cloud_set_status("saved locally only", 150, 150, 170)
-        if cb then cb(false) end
-    end
-end
-
-local function cloud_show(show)
-    cloud_view = show
-    -- local config elements
-    pcall(function() menu.home.config.import:set_visible(not show) end)
-    pcall(function() menu.home.config.list:set_visible(not show) end)
-    pcall(function() menu.home.config.name:set_visible(not show) end)
-    pcall(function() menu.home.config.save:set_visible(not show) end)
-    pcall(function() menu.home.config.load:set_visible(not show) end)
-    pcall(function() menu.home.config.export:set_visible(not show) end)
-    pcall(function() menu.home.config.delete:set_visible(not show) end)
-    pcall(function() menu.home.config.cloud_btn:set_visible(not show) end)
-    -- cloud elements
-    pcall(function() menu.home.cloud.back_btn:set_visible(show) end)
-    pcall(function() menu.home.cloud.list:set_visible(show) end)
-    pcall(function() menu.home.cloud.name:set_visible(show) end)
-    pcall(function() menu.home.cloud.upload:set_visible(show) end)
-    pcall(function() menu.home.cloud.load:set_visible(show) end)
-    pcall(function() menu.home.cloud.delete:set_visible(show) end)
-    pcall(function() menu.home.cloud.status:set_visible(show) end)
-    if show then cloud_fetch(nil) end
-end
-
--- hide cloud on init
-client.delay_call(0, function() pcall(cloud_show, false) end)
-
--- Go to cloud presets button
-menu.home.config.cloud_btn:set_callback(function()
-    cloud_show(true)
-end)
-
--- Back button
-menu.home.cloud.back_btn:set_callback(function()
-    cloud_show(false)
-end)
 
 -- Load preset from cloud
-menu.home.cloud.load:set_callback(function()
-    local name = menu.home.cloud.name() or ""
-    if name == "" or name == "-" then
-        cloud_set_status("select a preset", 220, 60, 60)
-        return
-    end
-    local preset_data = cloud_data[name]
-    if not preset_data then
-        cloud_set_status("preset not found", 220, 60, 60)
-        return
-    end
-    local ok = config:import(preset_data, false)
-    if ok then
-        cloud_set_status("loaded: " .. name, 59, 208, 182)
-        table.insert(config_notify, {text = "Cloud preset loaded: " .. name, time = globals.realtime()})
-    else
-        cloud_set_status("load failed", 220, 60, 60)
-    end
-end)
 
 -- Upload preset to cloud
-menu.home.cloud.upload:set_callback(function()
-    local name = menu.home.cloud.name() or ""
-    if name == "" then
-        cloud_set_status("enter preset name", 220, 60, 60)
-        return
-    end
-    local exported = config:export()
-    if exported == "" then
-        cloud_set_status("export failed", 220, 60, 60)
-        return
-    end
-    cloud_data[name] = exported
-    cloud_update_list()
-    cloud_set_status("uploading...", 150, 150, 170)
-    cloud_push(function(ok)
-        if ok then
-            table.insert(config_notify, {text = "Cloud preset uploaded: " .. name, time = globals.realtime()})
-        end
-    end)
-end)
 
 -- Delete preset from cloud
-menu.home.cloud.delete:set_callback(function()
-    local name = menu.home.cloud.name() or ""
-    if name == "" or name == "-" then
-        cloud_set_status("select a preset", 220, 60, 60)
-        return
-    end
-    cloud_data[name] = nil
-    cloud_update_list()
-    cloud_set_status("deleted: " .. name, 59, 208, 182)
-end)
 
 -- sync list selection to name textbox
-menu.home.cloud.list:set_callback(function()
-    local info = menu.home.cloud.list()
-    local names = {}
-    for k in pairs(cloud_data) do table.insert(names, k) end
-    table.sort(names)
-    local selected = names[info + 1]
-    if selected and selected ~= "-" then
-        if menu.home.cloud.name.set then
-            menu.home.cloud.name:set(selected)
-        elseif menu.home.cloud.name.set_text then
-            menu.home.cloud.name:set_text(selected)
-        end
-    end
-end)
 -- ============================================================
 
 
+
+
+-- Death trashtalk
+local death_phrases = {
+    ")))",
+    "game frozen now?",
+    "stop hunting me",
+    "i was just lighting a cigarette",
+    "dog suka",
+    "skeet makes me sad",
+    "lag? or just bad?",
+    "nice resolver bro",
+    "my grandma plays better",
+    "delete ur paste",
+    "PrioraClub > ur cheat",
+    "ez pz lemon squeezy",
+    "u got lucky",
+    "skill issue",
+    "touch grass",
+    "uninstall csgo",
+    "nice wallhack bro",
+    "reported",
+    "how much did that cost",
+    "ur aim is like ur dad - missing",
+    "i was afk",
+}
+
+local death_trash_last = 0
+
+local function on_death_trashtalk(e)
+    if not (menu.other.misc.trashtalk and menu.other.misc.trashtalk.val and menu.other.misc.trashtalk.val:get()) then return end
+    if not menu.other.misc.trashtalk.mode:get("On death") then return end
+    local victim = client.userid_to_entindex(e.userid)
+    if victim ~= entity.get_local_player() then return end
+    local now = globals.curtime()
+    if now - death_trash_last < 3 then return end
+    death_trash_last = now
+    local phrase = death_phrases[math.random(1, #death_phrases)]
+    client.delay_call(0.5, function()
+        client.exec("say " .. phrase)
+    end)
+end
+
+menu.other.misc.trashtalk.val:set_event("player_death", guarded_event(on_death_trashtalk))
 
 callback.paint:set(function()
     helper.render()
